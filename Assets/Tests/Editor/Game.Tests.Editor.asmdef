@@ -1,0 +1,20 @@
+{
+    "name": "Game.Tests.Editor",
+    "rootNamespace": "Game.Tests",
+    "references": [
+        "GUID:5cc4edb8a1dce20438b39fc89873c59b",
+        "GUID:27619889b8ba8c24980f49ee34dbb44a",
+        "GUID:0acc523941302664db1f4e527237feb3"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ]
+}

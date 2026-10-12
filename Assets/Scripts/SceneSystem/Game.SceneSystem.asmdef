@@ -1,0 +1,10 @@
+{
+    "name": "Game.SceneSystem",
+    "rootNamespace": "Game.SceneSystem",
+    "references": [
+        "GUID:5cc4edb8a1dce20438b39fc89873c59b",
+        "GUID:f6161a329aef8a84fb5815cc0661c3a3",
+        "GUID:f51ebe6a0ceec4240a699833d6309b23"
+    ],
+    "autoReferenced": true
+}
