@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e6911662d31e43945a8e04a056268f01, type: 3}
+  m_Name: ItemChain_Mail
+  m_EditorClassIdentifier: 
+  _levels:
+  - _sprite: {fileID: 21300000, guid: 82e64084894f71b45978096a7a219121, type: 3}
+    _mergeScore: 0
+  - _sprite: {fileID: 21300000, guid: 07a7272a117d73e4db0762def750bd6e, type: 3}
+    _mergeScore: 10
+  - _sprite: {fileID: 21300000, guid: 018c0e1ec4b2a6e449ec50adc5cce4de, type: 3}
+    _mergeScore: 25
+  - _sprite: {fileID: 21300000, guid: 0e5c6a130f74963438458f1caa3de9f9, type: 3}
+    _mergeScore: 50
+  - _sprite: {fileID: 21300000, guid: cc6e9ebf7e866fd4998da941fd494245, type: 3}
+    _mergeScore: 100

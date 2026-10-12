@@ -1,0 +1,8 @@
+{
+    "name": "Game.SpawnerSystem",
+    "rootNamespace": "Game.SpawnerSystem",
+    "references": [
+        "GUID:623e5e4a595c4ecfb0e463c1b9112097"
+    ],
+    "autoReferenced": true
+}

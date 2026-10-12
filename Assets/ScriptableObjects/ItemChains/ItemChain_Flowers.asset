@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e6911662d31e43945a8e04a056268f01, type: 3}
+  m_Name: ItemChain_Flowers
+  m_EditorClassIdentifier: 
+  _levels:
+  - _sprite: {fileID: 21300000, guid: 85458ac4fd07ef34d9582a9416f53d9e, type: 3}
+    _mergeScore: 0
+  - _sprite: {fileID: 21300000, guid: 6608aec552a008b4fbb45fa83b305b02, type: 3}
+    _mergeScore: 10
+  - _sprite: {fileID: 21300000, guid: f8a96eb67946a774c95057e5d03f9cf6, type: 3}
+    _mergeScore: 25
+  - _sprite: {fileID: 21300000, guid: c04ba445867c9c443b6b85b2111c2cab, type: 3}
+    _mergeScore: 50
+  - _sprite: {fileID: 21300000, guid: 3035985d22599a54b8326ecefa21e884, type: 3}
+    _mergeScore: 100

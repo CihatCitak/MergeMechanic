@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e6911662d31e43945a8e04a056268f01, type: 3}
+  m_Name: ItemChain_Fishing
+  m_EditorClassIdentifier: 
+  _levels:
+  - _sprite: {fileID: 21300000, guid: 4b03a8bb032a5954cb8c5685b2bd8ec2, type: 3}
+    _mergeScore: 0
+  - _sprite: {fileID: 21300000, guid: e75eb817b071f7644a9086716413a565, type: 3}
+    _mergeScore: 10
+  - _sprite: {fileID: 21300000, guid: 5c68243e75a652e43ab055588bfa9845, type: 3}
+    _mergeScore: 25
+  - _sprite: {fileID: 21300000, guid: fe5b3da4087c8d14083ddf1190670469, type: 3}
+    _mergeScore: 50
+  - _sprite: {fileID: 21300000, guid: 4ec5509baa0ff2e459075bf062d69c13, type: 3}
+    _mergeScore: 100

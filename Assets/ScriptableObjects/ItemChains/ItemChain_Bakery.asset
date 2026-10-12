@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e6911662d31e43945a8e04a056268f01, type: 3}
+  m_Name: ItemChain_Bakery
+  m_EditorClassIdentifier: 
+  _levels:
+  - _sprite: {fileID: 21300000, guid: 9fb360a6790ad3449931669e6a807a7e, type: 3}
+    _mergeScore: 0
+  - _sprite: {fileID: 21300000, guid: 3798cdb97ac143447816c53978dd1f61, type: 3}
+    _mergeScore: 10
+  - _sprite: {fileID: 21300000, guid: 91926794175da3d4baf074d279655022, type: 3}
+    _mergeScore: 25
+  - _sprite: {fileID: 21300000, guid: 6bb5ec5f4848e68439a9622af0358ec2, type: 3}
+    _mergeScore: 50
+  - _sprite: {fileID: 21300000, guid: ec759e1530e0fd347a99b20329ce61c5, type: 3}
+    _mergeScore: 100
