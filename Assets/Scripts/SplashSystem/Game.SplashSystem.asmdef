@@ -1,0 +1,10 @@
+{
+    "name": "Game.SplashSystem",
+    "rootNamespace": "Game.SplashSystem",
+    "references": [
+        "GUID:5cc4edb8a1dce20438b39fc89873c59b",
+        "GUID:301541d3c5d740b42908b2298353408c",
+        "GUID:f51ebe6a0ceec4240a699833d6309b23"
+    ],
+    "autoReferenced": true
+}
