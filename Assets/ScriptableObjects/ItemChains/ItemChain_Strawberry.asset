@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e6911662d31e43945a8e04a056268f01, type: 3}
+  m_Name: ItemChain_Strawberry
+  m_EditorClassIdentifier: 
+  _levels:
+  - _sprite: {fileID: 21300000, guid: 5107c813433e43840af20234f6efd095, type: 3}
+    _mergeScore: 0
+  - _sprite: {fileID: 21300000, guid: 9b9c74d89f7cd0344a805571d1ddafe5, type: 3}
+    _mergeScore: 10
+  - _sprite: {fileID: 21300000, guid: 085e4d4298ec2554e8b8c90a8022f0c1, type: 3}
+    _mergeScore: 25
+  - _sprite: {fileID: 21300000, guid: 988c9bb0fe9767e4aa8e181fa22733b4, type: 3}
+    _mergeScore: 50
+  - _sprite: {fileID: 21300000, guid: 32d9c1d9c8f54a34cb4d295abeffddc4, type: 3}
+    _mergeScore: 100

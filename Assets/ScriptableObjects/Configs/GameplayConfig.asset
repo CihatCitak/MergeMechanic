@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2158dc374f26ae4409fe1eb42012a01f, type: 3}
+  m_Name: GameplayConfig
+  m_EditorClassIdentifier: 
+  _gridSize: {x: 5, y: 5}
+  _spawners:
+  - _spawner: {fileID: 11400000, guid: 739e0bbce374824498bc2c9896b94c18, type: 2}
+    _cell: {x: 0, y: 4}
+  - _spawner: {fileID: 11400000, guid: 76a48f5c4949cf74b96dbe5677b4c77b, type: 2}
+    _cell: {x: 2, y: 4}
+  - _spawner: {fileID: 11400000, guid: f335f836994a9e04284548ecc8c0de26, type: 2}
+    _cell: {x: 4, y: 4}
