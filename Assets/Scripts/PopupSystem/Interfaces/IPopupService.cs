@@ -4,6 +4,5 @@ namespace Game.PopupSystem
     {
         T Show<T>() where T : BasePopupView;
         void Close();
-        void CloseAll();
     }
 }

@@ -26,7 +26,8 @@ namespace Game.PlayerSystem
         protected override void Initialize()
         {
             _data = new PlayerData();
-            JsonFileUtility.Load(FileName, _data);
+            if (!JsonFileUtility.Load(FileName, _data))
+                _data = new PlayerData();
         }
 
         public void SaveScore(int score)

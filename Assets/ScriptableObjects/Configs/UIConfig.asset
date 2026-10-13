@@ -16,6 +16,5 @@ MonoBehaviour:
   _popupCloseDuration: 0.15
   _popupStartScale: 0.8
   _popupOpenEase: 27
-  _toggleDuration: 0.15
   _pressScale: 0.92
   _pressDuration: 0.08

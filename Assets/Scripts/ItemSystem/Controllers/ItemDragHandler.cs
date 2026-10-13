@@ -29,55 +29,75 @@ namespace Game.ItemSystem
 
         public void Drag(Item item, Vector2 world)
         {
-            _highlighter.ShowTarget(item, world);
+            var cell = ServiceLocator.Get<IGrid>().WorldToCell(world);
+            if (Locate(item, cell, out var target) != DropCell.Item)
+            {
+                _highlighter.HideTarget();
+                return;
+            }
+
+            _highlighter.ShowTarget(cell, MergeRules.Evaluate(item.Chain, item.Level, target.Chain, target.Level) == MergeResult.Merge);
         }
 
         public void Drop(Item item, Vector2 world)
         {
             _highlighter.Hide();
             var grid = ServiceLocator.Get<IGrid>();
-            var holder = ServiceLocator.Get<IGridObjectHolder>();
             var cell = grid.WorldToCell(world);
-            if (grid.IsInside(cell) && cell != item.Cell)
+            switch (Locate(item, cell, out var target))
             {
-                if (holder.IsEmpty(cell))
-                {
+                case DropCell.Empty:
                     MoveAsync(item, cell).Forget();
-                    return;
-                }
+                    break;
+                case DropCell.Item:
+                    DropOn(item, target);
+                    break;
+                default:
+                    item.View.MoveToAsync(grid.CellToWorld(item.Cell), item.destroyCancellationToken).Forget();
+                    break;
+            }
+        }
 
-                if (holder.Get(cell) is Item target)
-                {
-                    var result = MergeRules.Evaluate(item.Chain, item.Level, target.Chain, target.Level);
-                    if (result == MergeResult.Merge)
-                    {
-                        _merger.Merge(item, target);
-                        return;
-                    }
-
-                    if (result == MergeResult.MaxLevel)
-                        ServiceLocator.Get<IToastService>().Show(_itemDragConfig.MaxLevelMessage);
-
-                    RejectAsync(item).Forget();
-                    return;
-                }
+        private void DropOn(Item item, Item target)
+        {
+            var result = MergeRules.Evaluate(item.Chain, item.Level, target.Chain, target.Level);
+            if (result == MergeResult.Merge)
+            {
+                _merger.Merge(item, target);
+                return;
             }
 
-            item.MoveToAsync(grid.CellToWorld(item.Cell), item.destroyCancellationToken).Forget();
+            if (result == MergeResult.MaxLevel)
+                ServiceLocator.Get<IToastService>().Show(_itemDragConfig.MaxLevelMessage);
+
+            RejectAsync(item).Forget();
+        }
+
+        private static DropCell Locate(Item item, Vector2Int cell, out Item target)
+        {
+            target = null;
+            var holder = ServiceLocator.Get<IGridObjectHolder>();
+            if (!ServiceLocator.Get<IGrid>().IsInside(cell) || cell == item.Cell)
+                return DropCell.Unavailable;
+            if (holder.IsEmpty(cell))
+                return DropCell.Empty;
+
+            target = holder.Get(cell) as Item;
+            return target != null ? DropCell.Item : DropCell.Unavailable;
         }
 
         private static async UniTaskVoid MoveAsync(Item item, Vector2Int cell)
         {
             item.Unplace();
             ServiceLocator.Get<IGridObjectHolder>().Reserve(cell);
-            await item.MoveToAsync(ServiceLocator.Get<IGrid>().CellToWorld(cell), item.destroyCancellationToken);
+            await item.View.MoveToAsync(ServiceLocator.Get<IGrid>().CellToWorld(cell), item.destroyCancellationToken);
             item.Place(cell);
         }
 
         private static async UniTaskVoid RejectAsync(Item item)
         {
-            await item.MoveToAsync(ServiceLocator.Get<IGrid>().CellToWorld(item.Cell), item.destroyCancellationToken);
-            item.PlayReject();
+            await item.View.MoveToAsync(ServiceLocator.Get<IGrid>().CellToWorld(item.Cell), item.destroyCancellationToken);
+            item.View.PlayReject();
         }
     }
 }

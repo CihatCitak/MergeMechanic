@@ -84,6 +84,27 @@ namespace Game.Tests
         }
 
         [Test]
+        public void CellOf_OccupiedObject_ReturnsItsCell()
+        {
+            var gridObject = new GridObject();
+            _holder.Reserve(Vector2Int.one);
+            _holder.Occupy(Vector2Int.one, gridObject);
+
+            Assert.AreEqual(Vector2Int.one, _holder.CellOf(gridObject));
+        }
+
+        [Test]
+        public void CellOf_VacatedObject_Throws()
+        {
+            var gridObject = new GridObject();
+            _holder.Reserve(Vector2Int.zero);
+            _holder.Occupy(Vector2Int.zero, gridObject);
+            _holder.Vacate(Vector2Int.zero);
+
+            Assert.Throws<InvalidOperationException>(() => _holder.CellOf(gridObject));
+        }
+
+        [Test]
         public void Occupy_UnreservedCell_Throws()
         {
             Assert.Throws<InvalidOperationException>(() => _holder.Occupy(Vector2Int.zero, new GridObject()));

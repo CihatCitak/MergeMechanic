@@ -2,11 +2,9 @@ using UnityEngine;
 
 namespace Game.Core.Services
 {
-    public abstract class BaseService : MonoBehaviour, IInitializable
+    public abstract class BaseService : MonoBehaviour
     {
         private bool _isInitialized;
-
-        public bool IsInitialized => _isInitialized;
 
         protected abstract void BindServices();
 

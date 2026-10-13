@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using UnityEngine;
 
@@ -5,16 +6,33 @@ namespace Game.Core.Utilities
 {
     public static class JsonFileUtility
     {
-        public static void Load(string fileName, object target)
+        public static bool Load(string fileName, object target)
         {
             var path = PathOf(fileName);
-            if (File.Exists(path))
+            if (!File.Exists(path))
+                return false;
+
+            try
+            {
                 JsonUtility.FromJsonOverwrite(File.ReadAllText(path), target);
+                return true;
+            }
+            catch (Exception exception)
+            {
+                Debug.LogError($"[JsonFileUtility] {fileName} could not be read: {exception.Message}");
+                return false;
+            }
         }
 
         public static void Save(string fileName, object source)
         {
-            File.WriteAllText(PathOf(fileName), JsonUtility.ToJson(source));
+            var path = PathOf(fileName);
+            var tempPath = path + ".tmp";
+            File.WriteAllText(tempPath, JsonUtility.ToJson(source));
+            if (File.Exists(path))
+                File.Replace(tempPath, path, null);
+            else
+                File.Move(tempPath, path);
         }
 
         public static void Delete(string fileName)
