@@ -1,0 +1,8 @@
+{
+    "name": "Game.GridSystem",
+    "rootNamespace": "Game.GridSystem",
+    "references": [
+        "GUID:5cc4edb8a1dce20438b39fc89873c59b"
+    ],
+    "autoReferenced": true
+}

@@ -12,7 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2158dc374f26ae4409fe1eb42012a01f, type: 3}
   m_Name: GameplayConfig
   m_EditorClassIdentifier: 
-  _gridSize: {x: 5, y: 5}
   _spawners:
   - _spawner: {fileID: 11400000, guid: 739e0bbce374824498bc2c9896b94c18, type: 2}
     _cell: {x: 0, y: 4}
