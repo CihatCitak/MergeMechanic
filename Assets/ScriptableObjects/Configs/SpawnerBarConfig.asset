@@ -9,13 +9,16 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2158dc374f26ae4409fe1eb42012a01f, type: 3}
-  m_Name: GameplayConfig
+  m_Script: {fileID: 11500000, guid: 32ed1f4e8f3ef364f80525b3916a8fa3, type: 3}
+  m_Name: SpawnerBarConfig
   m_EditorClassIdentifier: 
   _spawners:
   - _spawner: {fileID: 11400000, guid: 739e0bbce374824498bc2c9896b94c18, type: 2}
-    _cell: {x: 0, y: 4}
+    _spawnLevel: 1
   - _spawner: {fileID: 11400000, guid: 76a48f5c4949cf74b96dbe5677b4c77b, type: 2}
-    _cell: {x: 2, y: 4}
+    _spawnLevel: 1
   - _spawner: {fileID: 11400000, guid: f335f836994a9e04284548ecc8c0de26, type: 2}
-    _cell: {x: 4, y: 4}
+    _spawnLevel: 1
+  _spawnerSize: 1.8
+  _spacing: 2
+  _gridGap: 0.4

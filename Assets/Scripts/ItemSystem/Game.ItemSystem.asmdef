@@ -1,6 +1,11 @@
 {
     "name": "Game.ItemSystem",
     "rootNamespace": "Game.ItemSystem",
-    "references": [],
+    "references": [
+        "GUID:5cc4edb8a1dce20438b39fc89873c59b",
+        "GUID:8e7b8236b834496886a7242ed7c75be1",
+        "GUID:f51ebe6a0ceec4240a699833d6309b23",
+        "GUID:029c1c1b674aaae47a6841a0b89ad80e"
+    ],
     "autoReferenced": true
 }

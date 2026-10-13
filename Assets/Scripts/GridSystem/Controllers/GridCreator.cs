@@ -4,19 +4,19 @@ namespace Game.GridSystem
 {
     internal class GridCreator : MonoBehaviour
     {
-        [SerializeField] private SpriteRenderer _cellPrefab;
-        [SerializeField] private SpriteRenderer _frame;
+        [SerializeField] private GameObject _cellPrefab;
+        [SerializeField] private GridCorner _cornerPrefab;
 
-        public void Create(GridConfig config)
+        public void Create(GridConfig gridConfig)
         {
-            _frame.size = GridMath.AreaSize(config.Size, config.CellSize, config.FramePadding);
-            for (var x = 0; x < config.Size.x; x++)
+            Instantiate(_cornerPrefab, transform).SetSize(GridMath.AreaSize(gridConfig.Size, gridConfig.CellSize, gridConfig.CornerPadding));
+            for (var x = 0; x < gridConfig.Size.x; x++)
             {
-                for (var y = 0; y < config.Size.y; y++)
+                for (var y = 0; y < gridConfig.Size.y; y++)
                 {
                     var cell = Instantiate(_cellPrefab, transform);
-                    cell.transform.localPosition = GridMath.CellToLocal(new Vector2Int(x, y), config.Size, config.CellSize);
-                    cell.transform.localScale = Vector3.one * config.CellSize;
+                    cell.transform.localPosition = GridMath.CellToLocal(new Vector2Int(x, y), gridConfig.Size, gridConfig.CellSize);
+                    cell.transform.localScale = Vector3.one * gridConfig.CellSize;
                 }
             }
         }

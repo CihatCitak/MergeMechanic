@@ -2,7 +2,11 @@
     "name": "Game.SpawnerSystem",
     "rootNamespace": "Game.SpawnerSystem",
     "references": [
-        "GUID:623e5e4a595c4ecfb0e463c1b9112097"
+        "GUID:623e5e4a595c4ecfb0e463c1b9112097",
+        "GUID:5cc4edb8a1dce20438b39fc89873c59b",
+        "GUID:8e7b8236b834496886a7242ed7c75be1",
+        "GUID:cf7e100964b745fa85d387c289eb06ca",
+        "GUID:dca98d9e609c42d4b214bf451dbcd9b4"
     ],
     "autoReferenced": true
 }

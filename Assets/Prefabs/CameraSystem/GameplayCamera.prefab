@@ -141,5 +141,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1275c1e3f0218d4408073519eaf8e905, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _config: {fileID: 11400000, guid: 7541d2033cb071d4daa934a0cab25683, type: 2}
+  _cameraConfig: {fileID: 11400000, guid: 7541d2033cb071d4daa934a0cab25683, type: 2}
   _camera: {fileID: 5808661192929369877}

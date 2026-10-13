@@ -13,6 +13,4 @@ MonoBehaviour:
   m_Name: Spawner_Seafood
   m_EditorClassIdentifier: 
   _sprite: {fileID: 21300000, guid: 4d921a22fd6d984439f2c55d86ccd556, type: 3}
-  _chains:
-  - _chain: {fileID: 11400000, guid: e5fea3dbbc98f2e4d9583627e7db341f, type: 2}
-    _weight: 1
+  _chain: {fileID: 11400000, guid: e5fea3dbbc98f2e4d9583627e7db341f, type: 2}

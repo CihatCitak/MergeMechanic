@@ -13,6 +13,4 @@ MonoBehaviour:
   m_Name: Spawner_Coffee
   m_EditorClassIdentifier: 
   _sprite: {fileID: 21300000, guid: 90a7a9f53d4f5ae4fa17a1fc87c117ad, type: 3}
-  _chains:
-  - _chain: {fileID: 11400000, guid: 1124ca8a17ab1304c835d8efb55af3ae, type: 2}
-    _weight: 1
+  _chain: {fileID: 11400000, guid: 1124ca8a17ab1304c835d8efb55af3ae, type: 2}

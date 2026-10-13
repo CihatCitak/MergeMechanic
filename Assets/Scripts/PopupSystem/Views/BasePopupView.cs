@@ -8,7 +8,7 @@ namespace Game.PopupSystem
         [SerializeField] private CanvasGroup _canvasGroup;
         [SerializeField] private RectTransform _panel;
 
-        internal void Open(PopupConfig config)
+        internal void Open(PopupConfig popupConfig)
         {
             gameObject.SetActive(true);
             transform.SetAsLastSibling();
@@ -17,21 +17,21 @@ namespace Game.PopupSystem
             _panel.DOKill();
 
             _canvasGroup.alpha = 0f;
-            DOTween.To(() => _canvasGroup.alpha, SetAlpha, 1f, config.OpenDuration)
+            DOTween.To(() => _canvasGroup.alpha, SetAlpha, 1f, popupConfig.OpenDuration)
                 .SetTarget(_canvasGroup)
                 .SetLink(gameObject);
 
-            _panel.localScale = Vector3.one * config.StartScale;
-            _panel.DOScale(1f, config.OpenDuration)
-                .SetEase(config.OpenEase)
+            _panel.localScale = Vector3.one * popupConfig.StartScale;
+            _panel.DOScale(1f, popupConfig.OpenDuration)
+                .SetEase(popupConfig.OpenEase)
                 .SetLink(gameObject);
         }
 
-        internal void Close(PopupConfig config)
+        internal void Close(PopupConfig popupConfig)
         {
             _canvasGroup.interactable = false;
             _canvasGroup.DOKill();
-            DOTween.To(() => _canvasGroup.alpha, SetAlpha, 0f, config.CloseDuration)
+            DOTween.To(() => _canvasGroup.alpha, SetAlpha, 0f, popupConfig.CloseDuration)
                 .SetTarget(_canvasGroup)
                 .SetLink(gameObject)
                 .OnComplete(Deactivate);

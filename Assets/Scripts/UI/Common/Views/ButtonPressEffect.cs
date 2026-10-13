@@ -7,13 +7,13 @@ namespace Game.UI.Common
 {
     internal class ButtonPressEffect : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {
-        [SerializeField] private UIConfig _config;
+        [SerializeField] private UIConfig _uiConfig;
         [SerializeField] private Selectable _target;
 
         public void OnPointerDown(PointerEventData eventData)
         {
             if (_target.IsInteractable())
-                ScaleTo(_config.PressScale);
+                ScaleTo(_uiConfig.PressScale);
         }
 
         public void OnPointerUp(PointerEventData eventData)
@@ -24,7 +24,7 @@ namespace Game.UI.Common
         private void ScaleTo(float scale)
         {
             transform.DOKill();
-            transform.DOScale(scale, _config.PressDuration).SetLink(gameObject);
+            transform.DOScale(scale, _uiConfig.PressDuration).SetLink(gameObject);
         }
     }
 }

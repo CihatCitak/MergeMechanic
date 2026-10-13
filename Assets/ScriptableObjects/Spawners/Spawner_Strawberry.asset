@@ -13,6 +13,4 @@ MonoBehaviour:
   m_Name: Spawner_Strawberry
   m_EditorClassIdentifier: 
   _sprite: {fileID: 21300000, guid: a1eb1bb78975b8f4e92e8a39734d111f, type: 3}
-  _chains:
-  - _chain: {fileID: 11400000, guid: 0ccea7d30e1cac644867eb8ad7e9461e, type: 2}
-    _weight: 1
+  _chain: {fileID: 11400000, guid: 0ccea7d30e1cac644867eb8ad7e9461e, type: 2}

@@ -134,7 +134,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4a01701baaa72974d8a4ac9841c6a04b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _config: {fileID: 11400000, guid: 19370398c06a05c46a8fd2c35671d6a4, type: 2}
+  _uiConfig: {fileID: 11400000, guid: 19370398c06a05c46a8fd2c35671d6a4, type: 2}
   _target: {fileID: 7736573900659153748}
 --- !u!1 &502510288444147821
 GameObject:

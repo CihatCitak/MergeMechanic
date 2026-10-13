@@ -9,7 +9,7 @@ namespace Game.PopupSystem
 {
     internal class PopupService : BaseService, IPopupService
     {
-        [SerializeField] private PopupConfig _config;
+        [SerializeField] private PopupConfig _popupConfig;
         [SerializeField] private BasePopupView[] _prefabs;
         [SerializeField] private RectTransform _root;
         [SerializeField] private Image _dimmer;
@@ -36,12 +36,12 @@ namespace Game.PopupSystem
                 return popup;
 
             if (_stack.Count > 0)
-                Top.Close(_config);
+                Top.Close(_popupConfig);
 
             _stack.Add(popup);
             _dimmer.transform.SetAsLastSibling();
-            FadeDimmer(_config.DimAlpha, _config.OpenDuration);
-            popup.Open(_config);
+            FadeDimmer(_popupConfig.DimAlpha, _popupConfig.OpenDuration);
+            popup.Open(_popupConfig);
             return popup;
         }
 
@@ -52,16 +52,16 @@ namespace Game.PopupSystem
 
             var popup = Top;
             _stack.RemoveAt(_stack.Count - 1);
-            popup.Close(_config);
+            popup.Close(_popupConfig);
 
             if (_stack.Count == 0)
             {
-                FadeDimmer(0f, _config.CloseDuration);
+                FadeDimmer(0f, _popupConfig.CloseDuration);
                 return;
             }
 
             _dimmer.transform.SetAsLastSibling();
-            Top.Open(_config);
+            Top.Open(_popupConfig);
         }
 
         public void CloseAll()
@@ -69,9 +69,9 @@ namespace Game.PopupSystem
             if (_stack.Count == 0)
                 return;
 
-            Top.Close(_config);
+            Top.Close(_popupConfig);
             _stack.Clear();
-            FadeDimmer(0f, _config.CloseDuration);
+            FadeDimmer(0f, _popupConfig.CloseDuration);
         }
 
         private T GetOrCreate<T>() where T : BasePopupView
