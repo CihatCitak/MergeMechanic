@@ -89,7 +89,8 @@ Scripts/
 - Grid'in durumu tek bir yerde, `GridObjectHolder`'da tutuluyor; hangi hücrede ne olduğunun tek doğru kaynağı bu, ekrandaki objeler bu durumu sadece gösteriyor. Diğer sistemler ona `IGridObjectHolder` üzerinden erişiyor.
 - Hücrede duran objelerin tipi `IGridObject`; şu an bunu sadece item uyguluyor. Holder'ı generic (`GridObjectHolder<T>`) da yazabilirdim, ama hücrede durabilecek her şeyin ortak bir sözleşmesi olması yetiyor; generic parametre başka bir işe yaramazdı.
 - `IGridObject` içi boş bir sözleşme; bu yüzden item sistemi holder'dan aldığı objenin item olup olmadığını tip kontrolüyle (`is Item`) anlıyor. Holder'ı doğrudan `Item` tutacak şekilde yazsaydım bu kontrole gerek kalmazdı; ama grid sistemi item sistemine bağımlı olurdu ve hücreye item dışında bir şey koymak grid'i değiştirmeyi gerektirirdi. Bağımlılığın yönünü korumak için tip kontrolünü bilerek kabul ettim.
-- Bir hücrenin üç durumu var: boş, kiralanmış ve sahipli. Bir item'ın gideceği hücre, item oraya varana kadar kiralanıyor; kiralanmış hücre başka bir üretimde ya da bırakmada hedef olamıyor ve `Get` henüz sahibini döndürmüyor. Item hücreye varınca sahibi oluyor (`Occupy`), hücreden ayrılınca hücre boşalıyor (`Vacate`). Üretim, boş hücreye taşıma ve merge aynı kuralı kullanıyor; yoldaki bir item ne başka bir item'la aynı hücreye düşebiliyor ne de varmadan merge'e hedef olabiliyor.
+- Bir hücrenin üç durumu var: boş, kiralanmış ve sahipli. Bir item'ın gideceği hücre, item oraya varana kadar kiralanıyor; kiralanmış hücre başka bir üretimde ya da bırakmada hedef olamıyor ve `Get` henüz sahibini döndürmüyor. Item hücreye varınca sahibi oluyor (`Occupy`), hücreden ayrılınca hücre boşalıyor (`Vacate`). Üretim ve boş hücreye taşıma aynı kuralı kullanıyor; yoldaki bir item ne başka bir item'la aynı hücreye düşebiliyor ne de varmadan merge'e hedef olabiliyor.
+- Merge sonucu oluşan item ise kiralamadan hemen hücrenin sahibi oluyor. Kiralamanın sebebi item'ın hücreye gitmesi; merge sonucu hiçbir yere gitmiyor, olduğu hücrede büyüyerek beliriyor. Büyüme animasyonunu beklemek, oyuncunun yeni item'ı hemen bir sonraki merge için sürüklemesini gereksiz yere engelliyordu.
 - Kiralamanın sebebi item'ların hücreye animasyonla gitmesi; item'ın hücreyi seçtiği an ile hücreye vardığı an arasında zaman var. Alternatifler:
   - Hücreyi item yola çıkarken doğrudan sahiplendirebilirdim. Ama o zaman yoldaki item merge'e hedef olurdu; oyuncu henüz varmamış bir item'ın üstüne bırakınca uçmakta olan item yarıda silinirdi.
   - Hücreyi sadece item varınca işaretleyebilirdim. Ama peş peşe dokunuşlarda iki item aynı boş hücreyi seçebilir, tahta dolu olduğu halde boş sanılıp item üretilebilirdi.
@@ -138,6 +139,17 @@ Scripts/
 - Item'lar object pool'dan geliyor; Unity'nin hazır `UnityEngine.Pool.ObjectPool<T>`'si kullanılıyor. `ItemCreator` item'ı pool'dan alıyor, merge'de silinen item'lar `Destroy` yerine pool'a geri dönüyor; yeni bir item oluşturmak gerektiğinde önce pool'daki pasif item'lar kullanılıyor. Pool'u kendim de yazabilirdim; ama Unity'nin pool'u hazır ve test edilmiş, editörde aynı item'ın iki kez geri verilmesini de yakalıyor.
 - Pool'a dönen item sıfırlanıyor: çalışan tween'leri durduruluyor, collider'ı kapanıyor ve obje pasif oluyor. Pozisyon, ölçek ve görsel item pool'dan tekrar alınınca baştan veriliyor. Pool'a sadece bir hücrenin sahibi olan item'lar dönebiliyor (merge); yolda olan bir item'ın collider'ı kapalı olduğu için merge'e hedef olamıyor, bu yüzden bekleyen bir yerleşme hiçbir zaman yarıda kalıp pool'daki bir item'a uygulanmıyor.
 - Merge sonucu oluşan item hedef hücrede küçük başlayıp büyüyerek beliriyor; taşınan ya da geri dönen item hücresine kısa bir tween ile kayıyor. Süreler ve ease'ler `ItemAnimationConfig`'te.
+- Bir item sürüklenmeye başlayınca sadece hareket tween'i (taşınma ya da geri dönme) durduruluyor; büyüme animasyonu devam ediyor. Bütün tween'leri durdursaydım, büyümesi bitmeden sürüklenen yeni item yarım boyda kalırdı.
+- Büyüme ve küçülme animasyonları item'ın kendisine değil, görselin durduğu alt objeye (`Visual`) uygulanıyor; collider kökte kaldığı için hep hücre boyunda. Ölçeği kökte animasyonlasaydım collider da küçülür, merge'den hemen sonra item'ı kenarından tutmaya çalışan dokunuşlar boşa giderdi.
+
+## Skor
+
+- Her başarılı merge, oluşan item'ın level'ındaki `MergeScore` kadar puan kazandırıyor; puan değerleri zincir verisinde, koda yazılmıyor. Seviye yükseldikçe puan artıyor (şu an L2 = 10, L3 = 25, L4 = 50, L5 = 100).
+- Merge olunca `ItemMerger` bir `ItemMergedEvent` fırlatıyor (merge'ün olduğu pozisyon ve kazanılan puan). Skoru doğrudan çağırabilirdim; ama merge'ün olması skordan bağımsız bir bildirim. Item sistemi skordan haberdar değil; skoru, efekti ve ileride kaydı ilgilendiren her sistem aynı event'i kendisi dinliyor.
+- Gerçek skoru `ScoreController` (`IScore`) tutuyor ve merge olduğu anda artırıyor. Ekrandaki sayı ise merge'ün olduğu yerden üstteki skor barına uçan yıldız vardığında artıyor (`ScoreStarFlight`, `ScoreView`). Skorun kendisini de yıldız varınca artırabilirdim; ama o zaman yıldız yoldayken oyundan çıkılırsa puan kaybolurdu. Gerçek değer anında doğru, sadece gösterimi animasyonlu.
+- Skor barı HUD'da, safe area içinde. Barı da spawner sırası gibi dünyada kurabilirdim; ama UI'da olunca çentikli ekranlara uyuyor ve kameranın tahtayı sığdırma hesabına girmiyor. Uçan yıldız, merge'ün dünya pozisyonu ekran pozisyonuna çevrilerek UI'da oluşuyor.
+- Uçan yıldızlar da item'lar gibi `ObjectPool`'dan geliyor. Uçuş süresi, ease ve ikonun büyüme animasyonu `ScoreConfig`'te.
+- Skor barındaki yıldız görseli diğer görsellerle aynı kurallarla çizildi: 32×32 piksel, 8 kat büyütülmüş, koyu kontur, sol üstte açık ve sağ altta koyu ton.
 
 ## Tasarım kalıpları
 
@@ -145,10 +157,10 @@ Scripts/
 |---|---|---|---|
 | Service Locator | `ServiceLocator`, `ISceneLoader` | Servislere interface üzerinden, kurulum maliyeti olmadan erişim | Zenject gibi bir DI container; bu boyutta öğrenme ve açılış maliyeti fazla |
 | Singleton | `MonoSingleton` (`ServiceLocator`) | Proje boyunca tek bir locator, sahne geçişlerinde yaşıyor | Saf statik sınıf; ama o zaman Splash'teki servislerle birlikte bir prefab'da duramazdı |
-| Observer (Event Bus) | `EventBus`, `Game.Events` | Atan ve dinleyen birbirini tanımıyor (loading ekranı, sahne yükleme) | C# event'leri; dinleyenin atan sınıfa referans tutması gerekirdi |
+| Observer (Event Bus) | `EventBus`, `Game.Events` | Atan ve dinleyen birbirini tanımıyor (loading ekranı ve sahne yükleme; merge ile skor ve uçan yıldız) | C# event'leri; dinleyenin atan sınıfa referans tutması gerekirdi |
 | Type Object | `ItemChainData`, `SpawnerData` | Item ve spawner türleri sınıf değil veri; yeni tür kodsuz ekleniyor | Her item türü için alt sınıf ya da enum + switch; her yeni tür kod değişikliği |
 | Factory | `ItemCreator`, `SpawnerBarCreator`, `GridCreator` | Oluşturma tek yerde; prefab'ı, animasyonu ve yerleşmeyi çağıran taraf bilmiyor | Her çağıranın kendisi `Instantiate` etmesi; aynı kurulum kodu birkaç yerde tekrar ederdi |
-| Object Pool | `ItemCreator` (`UnityEngine.Pool.ObjectPool<Item>`) | Merge'de silinen item'lar yeniden kullanılıyor; oyun boyunca sürekli `Instantiate`/`Destroy` ve bunun getirdiği GC yükü oluşmuyor | Her seferinde `Instantiate`/`Destroy`; tahtada en fazla grid boyutu kadar item olduğu için maliyeti küçük olurdu, ama oyun uzadıkça birikiyor. Pool'u elle yazmak; Unity'nin hazır pool'u yeterli |
+| Object Pool | `ItemCreator`, `ScoreStarFlight` (`UnityEngine.Pool.ObjectPool<T>`) | Merge'de silinen item'lar ve uçan yıldızlar yeniden kullanılıyor; oyun boyunca sürekli `Instantiate`/`Destroy` ve bunun getirdiği GC yükü oluşmuyor | Her seferinde `Instantiate`/`Destroy`; tahtada en fazla grid boyutu kadar item olduğu için maliyeti küçük olurdu, ama oyun uzadıkça birikiyor. Pool'u elle yazmak; Unity'nin hazır pool'u yeterli |
 ## Bilinen kısıtlamalar
 
 - Kamera sadece tahtayı sığdırıyor. 3:4 gibi geniş ekranlarda (tablet) tahta yüksekliğe göre sığdığı için altındaki spawner sırası kısmen ekran dışında kalabilir.

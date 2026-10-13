@@ -1,5 +1,5 @@
-using Game.Core.Services;
-using Game.GridSystem;
+using Game.Core.Events;
+using Game.Events;
 using UnityEngine;
 
 namespace Game.ItemSystem
@@ -15,10 +15,10 @@ namespace Game.ItemSystem
             var mergedLevel = dragged.Level + 1;
             dragged.Unplace();
             target.Unplace();
-            ServiceLocator.Get<IGridObjectHolder>().Reserve(cell);
             _creator.Recycle(dragged);
             _creator.Recycle(target);
-            _creator.CreateMerged(chain, mergedLevel, cell);
+            var merged = _creator.CreateMerged(chain, mergedLevel, cell);
+            EventBus.Fire(new ItemMergedEvent(merged.transform.position, chain.GetLevel(mergedLevel).MergeScore));
         }
     }
 }
