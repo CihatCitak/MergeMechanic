@@ -13,6 +13,4 @@ MonoBehaviour:
   m_Name: Spawner_Fishing
   m_EditorClassIdentifier: 
   _sprite: {fileID: 21300000, guid: b3ddc735d72019f47a6d3330ebceae14, type: 3}
-  _chains:
-  - _chain: {fileID: 11400000, guid: 885e50dcc3ab91e4d9e5b740b1ecb879, type: 2}
-    _weight: 1
+  _chain: {fileID: 11400000, guid: 885e50dcc3ab91e4d9e5b740b1ecb879, type: 2}

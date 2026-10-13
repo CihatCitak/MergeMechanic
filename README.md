@@ -7,10 +7,9 @@ Grid tabanlı bir merge oyununun temel mekanikleri.
 
 ## "Üret" butonu yerine spawner
 
-- Case, ekranda bir "Üret" butonu istiyor; butona basınca rastgele bir zincirden Seviye 1 item boş bir hücreye yerleşmeli. Buton yerine grid üzerinde duran spawner'lar kullanıyorum; merge oyunlarında üretim genelde böyle yapılıyor.
-- Spawner tahtada bir hücre kaplıyor. Dokunulunca kendi zincirlerinden birinin Seviye 1 item'ını rastgele boş bir hücreye koyuyor; grid doluysa üretmiyor ve uyarı veriyor. Böylece butondan beklenen davranış korunuyor.
-- Tek bir buton bütün zincirlerden üretirdi. Spawner'larla hangi zincirin hangi oranda üretileceği her spawner için ayrı ayarlanabiliyor; bir spawner birden fazla zincir tutabiliyor.
-- Hangi spawner'ların oyunda olacağı ve başlangıçta hangi hücrede duracakları koddan değil, `GameplayConfig`'ten geliyor.
+- Case, ekranda bir "Üret" butonu istiyor; butona basınca rastgele bir zincirden Seviye 1 item boş bir hücreye yerleşmeli. Buton yerine tahtanın altında bir sıra spawner kullanıyorum; merge oyunlarında üretim genelde böyle yapılıyor.
+- Her spawner tek bir zincire ait. Dokununca o zincirin item'ı rastgele boş bir hücreye yerleşiyor; grid doluysa üretmiyor ve uyarı veriyor. Böylece butondan beklenen davranış korunuyor; hangi zincirden üretileceğini rastgele seçim yerine oyuncu, dokunduğu spawner'la seçiyor.
+- Hangi spawner'ların oyunda olacağı ve her birinin kaçıncı seviye item ürettiği koddan değil, `SpawnerBarConfig`'ten geliyor.
 
 ## Klasör ve assembly yapısı
 
@@ -19,7 +18,7 @@ Scripts/
   Core/           Game.Core            oyundan bağımsız altyapı (ServiceLocator, EventBus, BaseService)
   Events/         Game.Events          bütün event'ler
   <X>System/      Game.<X>System       oyun sistemleri: ItemSystem, SpawnerSystem, SceneSystem …
-  UI/<Ekran>/     Game.UI.<Ekran>      arayüz ekranları: LoadingScreen
+  UI/<Ekran>/     Game.UI.<Ekran>      arayüz ekranları: LoadingScreen, Toast
   UI/Common/      Game.UI.Common       birden fazla ekranda kullanılan arayüz parçaları
                   her birinin içi: Interfaces/ · Data/ · Controllers/ · Views/
 ```
@@ -64,30 +63,56 @@ Scripts/
 - Her item'ı ayrı bir asset olarak da tanımlayabilirdim; her item bir sonraki level'ı gösterirdi. Ama 5 level'lık bir zincir 5 ayrı asset olur, aradaki bağlantılar elle kurulurdu ve bir halka unutulunca zincir kopardı. Zincirin bütün level'ları tek asset'te ve sıralı; sıradaki level, listedeki sıradaki eleman.
 - Bir item'ın kimliği sadece zinciri ve level'ı. Max level ayrıca girilmiyor, zincirdeki level sayısından geliyor; iki ayrı yerde tutulsaydı birbiriyle çelişebilirdi.
 - Merge skoru ayrı bir skor tablosunda da tutulabilirdi. Ama skor item'ın bir özelliği; level'ın içinde durunca yeni bir zincir kendi skorlarıyla birlikte ekleniyor ve zincirler farklı puan verebiliyor. Skor, merge sonucu oluşan level'ın skoru. Level 1 merge ile oluşmadığı için skoru 0.
-- Spawner'lar da ScriptableObject (`SpawnerData`): generator görseli ve hangi zincirden hangi ağırlıkla üretileceği. Ağırlıklı seçim kuralı data'da değil, spawner'ı kullanan tarafta.
-- Başlangıçta hangi spawner'ın hangi hücrede duracağı `GameplayConfig`'te. Konumlar dünya koordinatı değil grid hücresi (`Vector2Int`); tasarlayan kişi "3. sütun, 5. satır" diye düşünüyor.
+- Spawner'lar da ScriptableObject (`SpawnerData`): generator görseli ve hangi zincirden ürettiği.
+- Oyunda hangi spawner'ların olacağı ve kaçıncı seviye item ürettikleri `SpawnerBarConfig`'te. Üretilen seviye spawner'ın kendisinde değil, oyundaki yerleşiminde tutuluyor; aynı spawner farklı bir yerleşimde farklı seviyeden üretebiliyor.
 - Şu an 10 zincir, her birinde 5 level ve her zincir için bir spawner var. Sprite'lar 256 piksel ve 256 PPU; bir item tam bir hücre (1 birim) kaplıyor.
 
 **Yeni bir zincir eklemek (kod değişikliği yok):**
 
 1. `Create > Game > Item Chain` ile asset oluştur; level'ları sırayla ekle, her birine sprite ve merge skoru ver.
 2. Zinciri mevcut bir spawner'ın `Chains` listesine ekle ya da `Create > Game > Spawner` ile yeni bir spawner oluştur.
-3. Yeni spawner'ı `GameplayConfig`'teki `Spawners` listesine bir başlangıç hücresiyle ekle.
+3. Yeni spawner'ı `SpawnerBarConfig`'teki `Spawners` listesine, üreteceği seviyeyle birlikte ekle.
 
 ## Grid
 
-- Grid boyutu (varsayılan 5×5), hücre boyutu ve çerçeve boşluğu `GridConfig`'te; koda sabit yazılmıyor. Grid boyutunu `GameplayConfig`'te de tutabilirdim, ama boyut grid'in kendi ayarı; grid'i kuran ve dönüşümleri yapan sistem onu kendi config'inden okuyor.
+- Grid boyutu (varsayılan 5×5), hücre boyutu ve tahta kenarlığının (`GridCorner`) boşluğu `GridConfig`'te; koda sabit yazılmıyor. Boyut grid'in kendi ayarı; grid'i kuran ve hücre pozisyonlarını hesaplayan sistem onu kendi config'inden okuyor.
 - Grid bir servis: `GridController`, Gameplay sahnesindeki `GameplayServiceLocator` prefab'ında duruyor ve kendini `IGrid` olarak kaydediyor.
-- Grid'i oluşturmak ile grid'le ilgili soruları cevaplamak ayrı sorumluluklar. Hücreleri ve çerçeveyi `GridCreator` oluşturuyor; akış yine `GridController`'dan başlıyor, açılışta creator'a config'i verip grid'i kurduruyor. Creator kimseye açılmıyor; grid'i sadece controller kurabiliyor.
-- Hücreler tahtanın altında local pozisyonlarıyla diziliyor; tahta kendi merkezine göre kurulduğu için grid boyutu tek veya çift olsun ortada kalıyor. Çerçeve 9-slice olduğu için her grid boyutunda bozulmadan uzuyor.
-- `IGrid`'de şu an sadece tahtanın kapladığı alan (`Area`) var, çünkü grid'den şimdilik sadece kamera bir şey istiyor. Hücre ↔ pozisyon dönüşümü gibi sorgular, onları kullanacak sistemler (item'lar, sürükleme) geldiğinde ekleniyor.
-- Hücre pozisyonu ve tahta alanı hesabı (`GridMath`) `internal`; dışarıdan herkesin çağırabileceği bir yardımcı sınıf olsaydı her çağıran grid boyutunu ve hücre boyutunu kendisi vermek zorunda kalırdı. Hesap sadece GridSystem içinde kullanılıyor; creator ve controller aynı alan hesabını kullandığı için çerçeve ile kameranın sığdırdığı alan hep aynı. Ayrı bir sınıfta durmasının sebebi saf fonksiyon olarak test edilebilmesi.
+- Grid'i oluşturmak ile grid'le ilgili soruları cevaplamak ayrı sorumluluklar. Hücreleri ve kenarlığı `GridCreator` oluşturuyor; akış yine `GridController`'dan başlıyor, açılışta creator'a config'i verip grid'i kurduruyor. Creator kimseye açılmıyor; grid'i sadece controller kurabiliyor.
+- Hücreler ve kenarlık prefab'dan oluşuyor. Kenarlık 9-slice bir sprite; kendi script'i (`GridCorner`) renderer'ını tutuyor ve creator ona sadece boyutunu veriyor, böylece her grid boyutunda bozulmadan uzuyor.
+- Hücreler tahtanın altında local pozisyonlarıyla diziliyor; tahta kendi merkezine göre kurulduğu için grid boyutu tek veya çift olsun ortada kalıyor.
+- `IGrid` sadece kullanılan sorguları açıyor: tahtanın kapladığı alan (kamera ve spawner sırası) ve bir hücrenin dünya pozisyonu (item yerleştirme). Hücre boyutunu veya tahtanın sahnedeki yerini kimse bilmiyor; ikisi de değişse grid'i kullanan kod değişmiyor.
+- Hücre pozisyonu ve tahta alanı hesabı (`GridMath`) `internal`; dışarıdan herkesin çağırabileceği bir yardımcı sınıf olsaydı her çağıran grid boyutunu ve hücre boyutunu kendisi vermek zorunda kalırdı. Creator ve controller aynı alan hesabını kullandığı için kenarlık ile kameranın sığdırdığı alan hep aynı. Ayrı bir sınıfta durmasının sebebi saf fonksiyon olarak test edilebilmesi.
+
+### Hangi hücrede ne var
+
+- Grid'in durumu tek bir yerde, `GridObjectHolder`'da tutuluyor; hangi hücrede ne olduğunun tek doğru kaynağı bu, ekrandaki objeler bu durumu sadece gösteriyor. Diğer sistemler ona `IGridObjectHolder` üzerinden erişiyor.
+- Hücrede duran objelerin tipi `IGridObject`; şu an bunu sadece item uyguluyor. Holder'ı generic (`GridObjectHolder<T>`) da yazabilirdim, ama hücrede durabilecek her şeyin ortak bir sözleşmesi olması yetiyor; generic parametre başka bir işe yaramazdı.
+- Bir hücrenin üç durumu var: boş, kiralanmış ve sahipli. Üretilen item spawner'dan hedef hücreye uçarken o hücreyi kiralıyor; kiralanmış hücre başka bir üretimde seçilmiyor. Item hücreye varınca sahibi oluyor (`Occupy`). Böylece yoldaki bir item ne başka bir item'la aynı hücreye düşebiliyor ne de varmadan merge'e hedef olabiliyor.
+- Kiralanmamış bir hücreyi sahiplenmek hata fırlatıyor. Sessizce yok sayılsaydı grid ile ekran birbirinden ayrışır ve hata çok sonra ortaya çıkardı.
+- Holder diğer servisler gibi `GameplayServiceLocator`'da duruyor ve kendini kaydediyor; hücre dizilerini açılışta `GridConfig`'teki boyutla oluşturuyor. Grid'in sorgularını cevaplayan `GridController`'dan ayrı; biri tahtanın geometrisini, diğeri içindekileri biliyor.
 
 ## Kamera
 
 - Kamera orthographic; oyun 2D sprite'larla XY düzleminde kuruluyor.
-- Kamerayı sabit bir boyutta da bırakabilirdim. Ama grid boyutu config'ten değişebiliyor ve telefonların en-boy oranları çok farklı. `CameraFitter` açılışta kamerayı tahtanın ortasına alıyor ve tahtanın tamamı, kenarlarda `CameraConfig`'teki boşlukla, ekrana sığacak şekilde boyutunu ayarlıyor. Uzun telefonlarda genişliğe, tablet gibi geniş ekranlarda yüksekliğe göre sığıyor.
-- Kamera tahtanın alanını `IGrid`'den alıyor; grid'in nasıl kurulduğunu bilmiyor. Grid'in alanı config'ten hesaplandığı için kameranın grid kurulumunu beklemesi gerekmiyor.
+- Kamerayı sabit bir boyutta da bırakabilirdim. Ama grid boyutu config'ten değişebiliyor ve telefonların en-boy oranları çok farklı. `CameraFitter` açılışta kamerayı tahtanın ortasına alıyor ve tahtanın tamamı, kenarlarda `CameraConfig`'teki boşlukla, ekrana sığacak şekilde boyutunu ayarlıyor.
+- Kamera sadece tahtayı sığdırıyor, altındaki spawner sırasını hesaba katmıyor. Oyun dikey; telefonlarda tahta genişliğe göre sığdığı için altında spawner'lara yer kalıyor.
+- Kamera tahtanın alanını `IGrid`'den alıyor; grid'in nasıl kurulduğunu bilmiyor. Alan config'ten hesaplandığı için kameranın grid kurulumunu beklemesi gerekmiyor.
+
+## Item üretimi
+
+- Spawner'lar tahtanın altında tek sıra halinde duruyor. Başta tahtanın hücrelerinde duruyorlardı ve sürüklenip taşınabileceklerdi; vazgeçtim. Hücre kaplamadıkları için tahtada item'lara yer kalıyor ve spawner'larla item'lar aynı kuralları paylaşmak zorunda kalmıyor.
+- Spawner sırası grid'e benzer şekilde kuruluyor: `SpawnerBarController` açılışta sıranın yerini hesaplayıp `SpawnerBarCreator`'a spawner'ları oluşturtuyor. Başka bir sistem ondan bir şey istemediği için servis değil; Gameplay sahnesinde kendi prefab'ıyla duruyor. Hangi spawner'ların olacağı, ürettikleri seviye, boyutları, aralarındaki mesafe ve tahtayla arasındaki boşluk `SpawnerBarConfig`'te. Sıra tahtanın alanına göre konumlanıyor; grid boyutu değişince kendiliğinden altında kalıyor.
+- Dokunma için Lean Touch kullanıyorum; dokunma ve mouse farkını kendisi soyutluyor. `TapController` parmak basıldığı anda altında bir `ITappable` obje varsa ona haber veriyor; neye dokunulduğunu bilmiyor.
+- Lean Touch'ın hazır tap event'i, basıp bırakma 0.2 saniyeden kısa sürmezse tetiklenmiyor; normal bir tıklama çoğu zaman bundan uzun sürdüğü için tıklamalar kaçıyordu. Bırakmayı beklemek de tepkiyi geciktiriyordu. Spawner basıldığı anda üretiyor ve kısa bir ölçek animasyonuyla (`SpawnerConfig`) dokunuşa karşılık veriyor; basılı tutup parmağı kaydırarak iptal etmek mümkün değil.
+- Peş peşe her basış bir item üretiyor; animasyon üretimi beklemiyor. Yeni basışta önceki animasyon tamamlanmış sayılıp ölçek tabana dönüyor ve yeni animasyon oradan başlıyor; animasyonlar üst üste binip spawner'ı büyütmüyor. Animasyon sadece büyüyüp geri dönüyor, tabanın altına inmiyor; inseydi collider da küçülür ve hızlı basışlarda kenara gelen dokunuşlar kaçardı.
+- Spawner'lar tahtanın hücrelerinde durmadığı için dokunulan obje 2D collider ile bulunuyor. Sonucu collider döndüğü için `ITappable` collider'ın objesinden `TryGetComponent` ile alınıyor; bu sadece basma ve bırakma anında çalışıyor, her karede değil.
+- Spawner'a dokununca spawner önce rastgele bir boş hücre kiralıyor, sonra kendi zincirinden, config'te verilen seviyedeki item'ı `ItemCreator`'a ürettiriyor.
+- Item spawner'ın üst kenarında küçük doğuyor, zıplayarak ve büyüyerek hedef hücreye gidiyor; varınca hücrenin sahibi oluyor. Süre, zıplama yüksekliği, ease ve başlangıç ölçeği `ItemAnimationConfig`'te. Spawner'ın ortasında doğsaydı ilk anı spawner'ın görselinin üstünde kaybolur, item geç çıkmış gibi görünürdü.
+- Item yoldayken yok olursa (örneğin oyuncu o sırada ana menüye dönerse) animasyon iptal ediliyor ve item hücreye yerleşmiyor. Tween item'ın yok olma iptaline bağlı; iptal edilen tween'in beklenmesi de iptal oluyor, tamamlanmış sayılmıyor.
+- Item'ı oluşturup hücreye götürmek `ItemCreator`'ın işi; spawner item prefab'ını, animasyonu ve hücreye nasıl yerleştiğini bilmiyor. Merge sonucu oluşacak item'lar da aynı yoldan oluşacak.
+- Boş hücre yoksa item üretilmiyor ve "Tahta dolu!" uyarısı gösteriliyor. Uyarı metni `SpawnerConfig`'te.
+- Uyarılar kısa bir toast olarak gösteriliyor. `ToastService` diğer servisler gibi `GameplayServiceLocator`'da duruyor; ekrandaki görünüm (`ToastView`) HUD canvas'ında ve servise sahnede referans olarak veriliyor. Görünüm servis olarak kaydolsaydı servis olmayan bir obje servis listesine girerdi. Açılma ve görünme süreleri `ToastConfig`'te.
+- Toast tahtanın ortasında çıkıyor. Tahtanın ekrandaki yerini dünya pozisyonundan hesaplayabilirdim; ama kamera zaten tahtayı ekranın ortasına aldığı için toast'u ekranın ortasına sabitlemek yetiyor. Toast safe area'nın değil canvas'ın altında; çentikli ekranlarda safe area'nın ortası ekranın ortasından kayıyor.
 
 ## Tasarım kalıpları
 
@@ -97,3 +122,8 @@ Scripts/
 | Singleton | `MonoSingleton` (`ServiceLocator`) | Proje boyunca tek bir locator, sahne geçişlerinde yaşıyor | Saf statik sınıf; ama o zaman Splash'teki servislerle birlikte bir prefab'da duramazdı |
 | Observer (Event Bus) | `EventBus`, `Game.Events` | Atan ve dinleyen birbirini tanımıyor (loading ekranı, sahne yükleme) | C# event'leri; dinleyenin atan sınıfa referans tutması gerekirdi |
 | Type Object | `ItemChainData`, `SpawnerData` | Item ve spawner türleri sınıf değil veri; yeni tür kodsuz ekleniyor | Her item türü için alt sınıf ya da enum + switch; her yeni tür kod değişikliği |
+| Factory | `ItemCreator`, `SpawnerBarCreator`, `GridCreator` | Oluşturma tek yerde; prefab'ı, animasyonu ve yerleşmeyi çağıran taraf bilmiyor | Her çağıranın kendisi `Instantiate` etmesi; aynı kurulum kodu birkaç yerde tekrar ederdi |
+
+## Bilinen kısıtlamalar
+
+- Kamera sadece tahtayı sığdırıyor. 3:4 gibi geniş ekranlarda (tablet) tahta yüksekliğe göre sığdığı için altındaki spawner sırası kısmen ekran dışında kalabilir.

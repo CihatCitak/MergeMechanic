@@ -7,7 +7,7 @@ namespace Game.UI.Common
 {
     internal class ToggleView : MonoBehaviour
     {
-        [SerializeField] private UIConfig _config;
+        [SerializeField] private UIConfig _uiConfig;
         [SerializeField] private Button _button;
         [SerializeField] private RectTransform _knob;
         [SerializeField] private GameObject _onKnob;
@@ -40,7 +40,7 @@ namespace Game.UI.Common
             _isOn = !_isOn;
             ShowState();
             _knob.DOKill();
-            _knob.DOLocalMoveX(KnobX, _config.ToggleDuration).SetLink(gameObject);
+            _knob.DOLocalMoveX(KnobX, _uiConfig.ToggleDuration).SetLink(gameObject);
             _changed(_isOn);
         }
 

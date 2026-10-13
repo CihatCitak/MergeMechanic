@@ -6,7 +6,7 @@ namespace Game.CameraSystem
 {
     internal class CameraFitter : MonoBehaviour
     {
-        [SerializeField] private CameraConfig _config;
+        [SerializeField] private CameraConfig _cameraConfig;
         [SerializeField] private Camera _camera;
 
         private void Start()
@@ -16,8 +16,8 @@ namespace Game.CameraSystem
 
         private void Fit(Rect area)
         {
-            var halfHeight = area.height * 0.5f + _config.Padding;
-            var halfWidth = area.width * 0.5f + _config.Padding;
+            var halfHeight = area.height * 0.5f + _cameraConfig.Padding;
+            var halfWidth = area.width * 0.5f + _cameraConfig.Padding;
             _camera.orthographicSize = Mathf.Max(halfHeight, halfWidth / _camera.aspect);
             _camera.transform.position = new Vector3(area.center.x, area.center.y, _camera.transform.position.z);
         }

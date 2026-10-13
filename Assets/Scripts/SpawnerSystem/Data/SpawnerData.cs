@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using Game.ItemSystem;
 using UnityEngine;
 
 namespace Game.SpawnerSystem
@@ -7,9 +7,9 @@ namespace Game.SpawnerSystem
     public class SpawnerData : ScriptableObject
     {
         [SerializeField] private Sprite _sprite;
-        [SerializeField] private SpawnerChainWeight[] _chains;
+        [SerializeField] private ItemChainData _chain;
 
         public Sprite Sprite => _sprite;
-        public IReadOnlyList<SpawnerChainWeight> Chains => _chains;
+        public ItemChainData Chain => _chain;
     }
 }

@@ -4,18 +4,18 @@ namespace Game.Core.Performance
 {
     internal class FrameRateController : MonoBehaviour
     {
-        [SerializeField] private FrameRateConfig _config;
+        [SerializeField] private FrameRateConfig _frameRateConfig;
 
         private void Awake()
         {
             QualitySettings.vSyncCount = 0;
-            Application.targetFrameRate = SelectFrameRate(SystemInfo.systemMemorySize, SystemInfo.processorCount, _config);
+            Application.targetFrameRate = SelectFrameRate(SystemInfo.systemMemorySize, SystemInfo.processorCount, _frameRateConfig);
         }
 
-        internal static int SelectFrameRate(int memoryMb, int processorCount, FrameRateConfig config)
+        internal static int SelectFrameRate(int memoryMb, int processorCount, FrameRateConfig frameRateConfig)
         {
-            var isCapable = memoryMb >= config.MinMemoryMb && processorCount >= config.MinProcessorCount;
-            return isCapable ? config.HighFrameRate : config.LowFrameRate;
+            var isCapable = memoryMb >= frameRateConfig.MinMemoryMb && processorCount >= frameRateConfig.MinProcessorCount;
+            return isCapable ? frameRateConfig.HighFrameRate : frameRateConfig.LowFrameRate;
         }
     }
 }

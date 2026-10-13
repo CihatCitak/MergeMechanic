@@ -13,6 +13,4 @@ MonoBehaviour:
   m_Name: Spawner_Bakery
   m_EditorClassIdentifier: 
   _sprite: {fileID: 21300000, guid: 75b3950f415e16e44896f353546db115, type: 3}
-  _chains:
-  - _chain: {fileID: 11400000, guid: d9cad9a3c4681154c8549918e331ca6e, type: 2}
-    _weight: 1
+  _chain: {fileID: 11400000, guid: d9cad9a3c4681154c8549918e331ca6e, type: 2}

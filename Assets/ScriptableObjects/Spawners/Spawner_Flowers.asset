@@ -13,6 +13,4 @@ MonoBehaviour:
   m_Name: Spawner_Flowers
   m_EditorClassIdentifier: 
   _sprite: {fileID: 21300000, guid: 5449795c90c6c05469dce2918b18ae9f, type: 3}
-  _chains:
-  - _chain: {fileID: 11400000, guid: 51748b1ca9a44c546a9ba837abe0f5a7, type: 2}
-    _weight: 1
+  _chain: {fileID: 11400000, guid: 51748b1ca9a44c546a9ba837abe0f5a7, type: 2}

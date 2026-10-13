@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 60fe41654e7b3124aab4238bbf4d89fc, type: 3}
   m_Name: GridConfig
   m_EditorClassIdentifier: 
-  _size: {x: 10, y: 10}
+  _size: {x: 5, y: 5}
   _cellSize: 1
-  _framePadding: 0.25
+  _cornerPadding: 0.25

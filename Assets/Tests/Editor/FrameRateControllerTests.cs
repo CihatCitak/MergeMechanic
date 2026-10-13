@@ -9,13 +9,13 @@ namespace Game.Tests
         [Test]
         public void SelectFrameRate_UsesHighOnlyWhenMemoryAndProcessorsAreEnough()
         {
-            var config = ScriptableObject.CreateInstance<FrameRateConfig>();
+            var frameRateConfig = ScriptableObject.CreateInstance<FrameRateConfig>();
 
-            Assert.AreEqual(config.HighFrameRate, FrameRateController.SelectFrameRate(config.MinMemoryMb, config.MinProcessorCount, config));
-            Assert.AreEqual(config.LowFrameRate, FrameRateController.SelectFrameRate(config.MinMemoryMb - 1, config.MinProcessorCount, config));
-            Assert.AreEqual(config.LowFrameRate, FrameRateController.SelectFrameRate(config.MinMemoryMb, config.MinProcessorCount - 1, config));
+            Assert.AreEqual(frameRateConfig.HighFrameRate, FrameRateController.SelectFrameRate(frameRateConfig.MinMemoryMb, frameRateConfig.MinProcessorCount, frameRateConfig));
+            Assert.AreEqual(frameRateConfig.LowFrameRate, FrameRateController.SelectFrameRate(frameRateConfig.MinMemoryMb - 1, frameRateConfig.MinProcessorCount, frameRateConfig));
+            Assert.AreEqual(frameRateConfig.LowFrameRate, FrameRateController.SelectFrameRate(frameRateConfig.MinMemoryMb, frameRateConfig.MinProcessorCount - 1, frameRateConfig));
 
-            Object.DestroyImmediate(config);
+            Object.DestroyImmediate(frameRateConfig);
         }
     }
 }

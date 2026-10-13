@@ -44,4 +44,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0117bb0042b327745a5c639f03cd99c2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _config: {fileID: 11400000, guid: d8ed5436e6a0bbc44a5869241a0f1b42, type: 2}
+  _frameRateConfig: {fileID: 11400000, guid: d8ed5436e6a0bbc44a5869241a0f1b42, type: 2}
