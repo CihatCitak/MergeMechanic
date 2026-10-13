@@ -1,6 +1,6 @@
 # MergeMechanic
 
-Vuvy Unity Developer case study: grid tabanlı bir merge oyununun temel mekanikleri.
+Grid tabanlı bir merge oyununun temel mekanikleri.
 
 - Unity 6000.0.62f1, URP
 - UniTask, DOTween, Lean Touch
@@ -65,7 +65,7 @@ Scripts/
 - Bir item'ın kimliği sadece zinciri ve level'ı. Max level ayrıca girilmiyor, zincirdeki level sayısından geliyor; iki ayrı yerde tutulsaydı birbiriyle çelişebilirdi.
 - Merge skoru ayrı bir skor tablosunda da tutulabilirdi. Ama skor item'ın bir özelliği; level'ın içinde durunca yeni bir zincir kendi skorlarıyla birlikte ekleniyor ve zincirler farklı puan verebiliyor. Skor, merge sonucu oluşan level'ın skoru. Level 1 merge ile oluşmadığı için skoru 0.
 - Spawner'lar da ScriptableObject (`SpawnerData`): generator görseli ve hangi zincirden hangi ağırlıkla üretileceği. Ağırlıklı seçim kuralı data'da değil, spawner'ı kullanan tarafta.
-- Grid boyutu ve başlangıçta hangi spawner'ın hangi hücrede duracağı `GameplayConfig`'te. Konumlar dünya koordinatı değil grid hücresi (`Vector2Int`); tasarlayan kişi "3. sütun, 5. satır" diye düşünüyor.
+- Başlangıçta hangi spawner'ın hangi hücrede duracağı `GameplayConfig`'te. Konumlar dünya koordinatı değil grid hücresi (`Vector2Int`); tasarlayan kişi "3. sütun, 5. satır" diye düşünüyor.
 - Şu an 10 zincir, her birinde 5 level ve her zincir için bir spawner var. Sprite'lar 256 piksel ve 256 PPU; bir item tam bir hücre (1 birim) kaplıyor.
 
 **Yeni bir zincir eklemek (kod değişikliği yok):**
@@ -73,6 +73,21 @@ Scripts/
 1. `Create > Game > Item Chain` ile asset oluştur; level'ları sırayla ekle, her birine sprite ve merge skoru ver.
 2. Zinciri mevcut bir spawner'ın `Chains` listesine ekle ya da `Create > Game > Spawner` ile yeni bir spawner oluştur.
 3. Yeni spawner'ı `GameplayConfig`'teki `Spawners` listesine bir başlangıç hücresiyle ekle.
+
+## Grid
+
+- Grid boyutu (varsayılan 5×5), hücre boyutu ve çerçeve boşluğu `GridConfig`'te; koda sabit yazılmıyor. Grid boyutunu `GameplayConfig`'te de tutabilirdim, ama boyut grid'in kendi ayarı; grid'i kuran ve dönüşümleri yapan sistem onu kendi config'inden okuyor.
+- Grid bir servis: `GridController`, Gameplay sahnesindeki `GameplayServiceLocator` prefab'ında duruyor ve kendini `IGrid` olarak kaydediyor.
+- Grid'i oluşturmak ile grid'le ilgili soruları cevaplamak ayrı sorumluluklar. Hücreleri ve çerçeveyi `GridCreator` oluşturuyor; akış yine `GridController`'dan başlıyor, açılışta creator'a config'i verip grid'i kurduruyor. Creator kimseye açılmıyor; grid'i sadece controller kurabiliyor.
+- Hücreler tahtanın altında local pozisyonlarıyla diziliyor; tahta kendi merkezine göre kurulduğu için grid boyutu tek veya çift olsun ortada kalıyor. Çerçeve 9-slice olduğu için her grid boyutunda bozulmadan uzuyor.
+- `IGrid`'de şu an sadece tahtanın kapladığı alan (`Area`) var, çünkü grid'den şimdilik sadece kamera bir şey istiyor. Hücre ↔ pozisyon dönüşümü gibi sorgular, onları kullanacak sistemler (item'lar, sürükleme) geldiğinde ekleniyor.
+- Hücre pozisyonu ve tahta alanı hesabı (`GridMath`) `internal`; dışarıdan herkesin çağırabileceği bir yardımcı sınıf olsaydı her çağıran grid boyutunu ve hücre boyutunu kendisi vermek zorunda kalırdı. Hesap sadece GridSystem içinde kullanılıyor; creator ve controller aynı alan hesabını kullandığı için çerçeve ile kameranın sığdırdığı alan hep aynı. Ayrı bir sınıfta durmasının sebebi saf fonksiyon olarak test edilebilmesi.
+
+## Kamera
+
+- Kamera orthographic; oyun 2D sprite'larla XY düzleminde kuruluyor.
+- Kamerayı sabit bir boyutta da bırakabilirdim. Ama grid boyutu config'ten değişebiliyor ve telefonların en-boy oranları çok farklı. `CameraFitter` açılışta kamerayı tahtanın ortasına alıyor ve tahtanın tamamı, kenarlarda `CameraConfig`'teki boşlukla, ekrana sığacak şekilde boyutunu ayarlıyor. Uzun telefonlarda genişliğe, tablet gibi geniş ekranlarda yüksekliğe göre sığıyor.
+- Kamera tahtanın alanını `IGrid`'den alıyor; grid'in nasıl kurulduğunu bilmiyor. Grid'in alanı config'ten hesaplandığı için kameranın grid kurulumunu beklemesi gerekmiyor.
 
 ## Tasarım kalıpları
 

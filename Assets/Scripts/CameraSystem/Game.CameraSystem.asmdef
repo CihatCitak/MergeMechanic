@@ -1,0 +1,9 @@
+{
+    "name": "Game.CameraSystem",
+    "rootNamespace": "Game.CameraSystem",
+    "references": [
+        "GUID:5cc4edb8a1dce20438b39fc89873c59b",
+        "GUID:8e7b8236b834496886a7242ed7c75be1"
+    ],
+    "autoReferenced": true
+}
