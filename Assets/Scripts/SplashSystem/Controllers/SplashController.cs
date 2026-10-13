@@ -8,7 +8,7 @@ namespace Game.SplashSystem
 {
     internal class SplashController : MonoBehaviour
     {
-        [SerializeField, Min(0f)] private float _duration = 1.5f;
+        [SerializeField, Min(0f)] private float _duration = 1f;
 
         private void Start()
         {

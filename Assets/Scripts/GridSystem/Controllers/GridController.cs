@@ -32,9 +32,19 @@ namespace Game.GridSystem
             _creator.Create(_gridConfig);
         }
 
+        public bool IsInside(Vector2Int cell)
+        {
+            return GridMath.IsInside(cell, _gridConfig.Size);
+        }
+
         public Vector2 CellToWorld(Vector2Int cell)
         {
             return (Vector2)transform.position + GridMath.CellToLocal(cell, _gridConfig.Size, _gridConfig.CellSize);
+        }
+
+        public Vector2Int WorldToCell(Vector2 world)
+        {
+            return GridMath.LocalToCell(world - (Vector2)transform.position, _gridConfig.Size, _gridConfig.CellSize);
         }
     }
 }

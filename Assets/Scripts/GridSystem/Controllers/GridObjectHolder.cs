@@ -34,6 +34,24 @@ namespace Game.GridSystem
             _reserved = new bool[size.x, size.y];
         }
 
+        public IGridObject Get(Vector2Int cell)
+        {
+            return _objects[cell.x, cell.y];
+        }
+
+        public bool IsEmpty(Vector2Int cell)
+        {
+            return _objects[cell.x, cell.y] == null && !_reserved[cell.x, cell.y];
+        }
+
+        public void Reserve(Vector2Int cell)
+        {
+            if (!IsEmpty(cell))
+                throw new InvalidOperationException($"Cell {cell} is not empty.");
+
+            _reserved[cell.x, cell.y] = true;
+        }
+
         public bool TryReserveRandomEmptyCell(out Vector2Int cell)
         {
             CollectEmptyCells();
@@ -59,6 +77,14 @@ namespace Game.GridSystem
             _objects[cell.x, cell.y] = gridObject;
         }
 
+        public void Vacate(Vector2Int cell)
+        {
+            if (_objects[cell.x, cell.y] == null)
+                throw new InvalidOperationException($"Cell {cell} has no owner.");
+
+            _objects[cell.x, cell.y] = null;
+        }
+
         private void CollectEmptyCells()
         {
             _emptyCells.Clear();
@@ -66,8 +92,9 @@ namespace Game.GridSystem
             {
                 for (var y = 0; y < _objects.GetLength(1); y++)
                 {
-                    if (_objects[x, y] == null && !_reserved[x, y])
-                        _emptyCells.Add(new Vector2Int(x, y));
+                    var cell = new Vector2Int(x, y);
+                    if (IsEmpty(cell))
+                        _emptyCells.Add(cell);
                 }
             }
         }

@@ -27,6 +27,41 @@ namespace Game.Tests
         }
 
         [Test]
+        public void Reserve_CellHasNoOwnerUntilOccupied()
+        {
+            var gridObject = new GridObject();
+
+            _holder.Reserve(Vector2Int.one);
+
+            Assert.IsFalse(_holder.IsEmpty(Vector2Int.one));
+            Assert.IsNull(_holder.Get(Vector2Int.one));
+
+            _holder.Occupy(Vector2Int.one, gridObject);
+
+            Assert.AreSame(gridObject, _holder.Get(Vector2Int.one));
+        }
+
+        [Test]
+        public void Vacate_OwnedCell_MakesItEmpty()
+        {
+            _holder.Reserve(Vector2Int.zero);
+            _holder.Occupy(Vector2Int.zero, new GridObject());
+
+            _holder.Vacate(Vector2Int.zero);
+
+            Assert.IsTrue(_holder.IsEmpty(Vector2Int.zero));
+            Assert.IsNull(_holder.Get(Vector2Int.zero));
+        }
+
+        [Test]
+        public void Reserve_NotEmptyCell_Throws()
+        {
+            _holder.Reserve(Vector2Int.zero);
+
+            Assert.Throws<InvalidOperationException>(() => _holder.Reserve(Vector2Int.zero));
+        }
+
+        [Test]
         public void TryReserveRandomEmptyCell_NeverPicksReservedOrOccupiedCell()
         {
             var picked = new HashSet<Vector2Int>();

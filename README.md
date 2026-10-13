@@ -80,16 +80,25 @@ Scripts/
 - Grid'i oluşturmak ile grid'le ilgili soruları cevaplamak ayrı sorumluluklar. Hücreleri ve kenarlığı `GridCreator` oluşturuyor; akış yine `GridController`'dan başlıyor, açılışta creator'a config'i verip grid'i kurduruyor. Creator kimseye açılmıyor; grid'i sadece controller kurabiliyor.
 - Hücreler ve kenarlık prefab'dan oluşuyor. Kenarlık 9-slice bir sprite; kendi script'i (`GridCorner`) renderer'ını tutuyor ve creator ona sadece boyutunu veriyor, böylece her grid boyutunda bozulmadan uzuyor.
 - Hücreler tahtanın altında local pozisyonlarıyla diziliyor; tahta kendi merkezine göre kurulduğu için grid boyutu tek veya çift olsun ortada kalıyor.
-- `IGrid` sadece kullanılan sorguları açıyor: tahtanın kapladığı alan (kamera ve spawner sırası) ve bir hücrenin dünya pozisyonu (item yerleştirme). Hücre boyutunu veya tahtanın sahnedeki yerini kimse bilmiyor; ikisi de değişse grid'i kullanan kod değişmiyor.
+- `IGrid` sadece kullanılan sorguları açıyor: tahtanın kapladığı alan (kamera ve spawner sırası), hücre ↔ dünya pozisyonu dönüşümü (yerleştirme ve sürükleme) ve bir hücrenin tahtanın içinde olup olmadığı. Hücre boyutunu veya tahtanın sahnedeki yerini kimse bilmiyor; ikisi de değişse grid'i kullanan kod değişmiyor.
 - Hücre pozisyonu ve tahta alanı hesabı (`GridMath`) `internal`; dışarıdan herkesin çağırabileceği bir yardımcı sınıf olsaydı her çağıran grid boyutunu ve hücre boyutunu kendisi vermek zorunda kalırdı. Creator ve controller aynı alan hesabını kullandığı için kenarlık ile kameranın sığdırdığı alan hep aynı. Ayrı bir sınıfta durmasının sebebi saf fonksiyon olarak test edilebilmesi.
+- Pozisyondan hücreye çevirirken `Mathf.RoundToInt` kullanmadım; tam yarıda en yakın çift sayıya yuvarladığı için hücre sınırlarında bir hücre bir yöne, diğeri öbür yöne kayardı. `FloorToInt` her sınırda aynı davranıyor.
 
 ### Hangi hücrede ne var
 
 - Grid'in durumu tek bir yerde, `GridObjectHolder`'da tutuluyor; hangi hücrede ne olduğunun tek doğru kaynağı bu, ekrandaki objeler bu durumu sadece gösteriyor. Diğer sistemler ona `IGridObjectHolder` üzerinden erişiyor.
 - Hücrede duran objelerin tipi `IGridObject`; şu an bunu sadece item uyguluyor. Holder'ı generic (`GridObjectHolder<T>`) da yazabilirdim, ama hücrede durabilecek her şeyin ortak bir sözleşmesi olması yetiyor; generic parametre başka bir işe yaramazdı.
-- Bir hücrenin üç durumu var: boş, kiralanmış ve sahipli. Üretilen item spawner'dan hedef hücreye uçarken o hücreyi kiralıyor; kiralanmış hücre başka bir üretimde seçilmiyor. Item hücreye varınca sahibi oluyor (`Occupy`). Böylece yoldaki bir item ne başka bir item'la aynı hücreye düşebiliyor ne de varmadan merge'e hedef olabiliyor.
-- Kiralanmamış bir hücreyi sahiplenmek hata fırlatıyor. Sessizce yok sayılsaydı grid ile ekran birbirinden ayrışır ve hata çok sonra ortaya çıkardı.
+- `IGridObject` içi boş bir sözleşme; bu yüzden item sistemi holder'dan aldığı objenin item olup olmadığını tip kontrolüyle (`is Item`) anlıyor. Holder'ı doğrudan `Item` tutacak şekilde yazsaydım bu kontrole gerek kalmazdı; ama grid sistemi item sistemine bağımlı olurdu ve hücreye item dışında bir şey koymak grid'i değiştirmeyi gerektirirdi. Bağımlılığın yönünü korumak için tip kontrolünü bilerek kabul ettim.
+- Bir hücrenin üç durumu var: boş, kiralanmış ve sahipli. Bir item'ın gideceği hücre, item oraya varana kadar kiralanıyor; kiralanmış hücre başka bir üretimde ya da bırakmada hedef olamıyor ve `Get` henüz sahibini döndürmüyor. Item hücreye varınca sahibi oluyor (`Occupy`), hücreden ayrılınca hücre boşalıyor (`Vacate`). Üretim, boş hücreye taşıma ve merge aynı kuralı kullanıyor; yoldaki bir item ne başka bir item'la aynı hücreye düşebiliyor ne de varmadan merge'e hedef olabiliyor.
+- Kiralamanın sebebi item'ların hücreye animasyonla gitmesi; item'ın hücreyi seçtiği an ile hücreye vardığı an arasında zaman var. Alternatifler:
+  - Hücreyi item yola çıkarken doğrudan sahiplendirebilirdim. Ama o zaman yoldaki item merge'e hedef olurdu; oyuncu henüz varmamış bir item'ın üstüne bırakınca uçmakta olan item yarıda silinirdi.
+  - Hücreyi sadece item varınca işaretleyebilirdim. Ama peş peşe dokunuşlarda iki item aynı boş hücreyi seçebilir, tahta dolu olduğu halde boş sanılıp item üretilebilirdi.
+  - Animasyon süresince girdiyi kilitleyebilirdim. Ama oyuncu her üretimden sonra beklemek zorunda kalırdı; peş peşe dokunarak hızlı üretmek mümkün olmazdı.
+  
+  Kiralama üçünü de çözüyor: hücre seçildiği an başkasına kapanıyor, ama içindeki item varana kadar kimse ona dokunamıyor ve oyuncu hiç beklemiyor.
+- Kiralanmamış bir hücreyi sahiplenmek, boş olmayan bir hücreyi kiralamak veya sahibi olmayan bir hücreyi boşaltmak hata fırlatıyor. Sessizce yok sayılsaydı grid ile ekran birbirinden ayrışır ve hata çok sonra ortaya çıkardı.
 - Holder diğer servisler gibi `GameplayServiceLocator`'da duruyor ve kendini kaydediyor; hücre dizilerini açılışta `GridConfig`'teki boyutla oluşturuyor. Grid'in sorgularını cevaplayan `GridController`'dan ayrı; biri tahtanın geometrisini, diğeri içindekileri biliyor.
+- Item da hangi hücrede olduğunu ve sürüklenip sürüklenemeyeceğini biliyor. Bu bilgi holder'la birlikte değişmeli; bu yüzden item'ın hücreye yerleşmesi (`Place`) ve hücreden ayrılması (`Unplace`) holder'ı da kendisi güncelliyor. Holder ile item'ı ayrı ayrı güncelleyen çağrılar birkaç yere dağılmıştı; birinde yarısı unutulsa grid ile item birbirinden kopardı. Şimdi bunu yarım yapmanın yolu yok.
 
 ## Kamera
 
@@ -109,10 +118,26 @@ Scripts/
 - Spawner'a dokununca spawner önce rastgele bir boş hücre kiralıyor, sonra kendi zincirinden, config'te verilen seviyedeki item'ı `ItemCreator`'a ürettiriyor.
 - Item spawner'ın üst kenarında küçük doğuyor, zıplayarak ve büyüyerek hedef hücreye gidiyor; varınca hücrenin sahibi oluyor. Süre, zıplama yüksekliği, ease ve başlangıç ölçeği `ItemAnimationConfig`'te. Spawner'ın ortasında doğsaydı ilk anı spawner'ın görselinin üstünde kaybolur, item geç çıkmış gibi görünürdü.
 - Item yoldayken yok olursa (örneğin oyuncu o sırada ana menüye dönerse) animasyon iptal ediliyor ve item hücreye yerleşmiyor. Tween item'ın yok olma iptaline bağlı; iptal edilen tween'in beklenmesi de iptal oluyor, tamamlanmış sayılmıyor.
-- Item'ı oluşturup hücreye götürmek `ItemCreator`'ın işi; spawner item prefab'ını, animasyonu ve hücreye nasıl yerleştiğini bilmiyor. Merge sonucu oluşacak item'lar da aynı yoldan oluşacak.
+- Item'ı oluşturup hücreye götürmek `ItemCreator`'ın işi; spawner item prefab'ını, animasyonu ve hücreye nasıl yerleştiğini bilmiyor. Merge sonucu oluşan item'lar da aynı yoldan oluşuyor.
 - Boş hücre yoksa item üretilmiyor ve "Tahta dolu!" uyarısı gösteriliyor. Uyarı metni `SpawnerConfig`'te.
 - Uyarılar kısa bir toast olarak gösteriliyor. `ToastService` diğer servisler gibi `GameplayServiceLocator`'da duruyor; ekrandaki görünüm (`ToastView`) HUD canvas'ında ve servise sahnede referans olarak veriliyor. Görünüm servis olarak kaydolsaydı servis olmayan bir obje servis listesine girerdi. Açılma ve görünme süreleri `ToastConfig`'te.
 - Toast tahtanın ortasında çıkıyor. Tahtanın ekrandaki yerini dünya pozisyonundan hesaplayabilirdim; ama kamera zaten tahtayı ekranın ortasına aldığı için toast'u ekranın ortasına sabitlemek yetiyor. Toast safe area'nın değil canvas'ın altında; çentikli ekranlarda safe area'nın ortası ekranın ortasından kayıyor.
+
+## Sürükleme ve merge
+
+- `DragController` parmak basınca altındaki `IDraggable`'ı collider ile buluyor, parmak hareket ettikçe ve bırakınca ona haber veriyor; neyi sürüklediğini bilmiyor. Sürüklemeyi item sınıfına özel de yazabilirdim; ama sürükleme bir etkileşim, sürüklenen şeyin kendisi değil. İleride item dışında sürüklenebilecek bir şey eklenirse `DragController` değişmiyor.
+- Item'ın collider'ı sadece bir hücrenin sahibiyken açık. Yolda olan ya da yeni hücresine oturmakta olan bir item sürüklenemiyor; yarım kalmış bir yerleşmenin üstüne ikinci bir sürükleme binmiyor.
+- Sürüklenen item sürükleme boyunca kendi hücresinin sahibi olarak kalıyor. O sırada spawner'dan çıkan bir item onun hücresine düşemiyor ve bırakma başarısız olursa item'ın döneceği yer hep boş.
+- Sürükleme ve bırakmayı item değil `ItemDragHandler` yönetiyor. Sürüklerken vurguyu `ItemHighlighter`'a bırakıyor; bırakınca karar veriyor: hedef boşsa item oraya taşınıyor; aynı zincirden ve aynı seviyedeki bir item'sa merge'ü `ItemMerger`'a veriyor; diğer her durumda (farklı zincir, farklı seviye, max seviye, tahta dışı, kiralanmış hücre) item kendi hücresine geri dönüyor. Max seviye yüzünden dönüyorsa "Maksimum seviye!" uyarısı çıkıyor (`ItemDragConfig`).
+- Merge kuralı (`MergeRules`) saf bir fonksiyon ve sonucu bir enum: birleşir, farklı zincir, farklı seviye veya max seviye. Sonucu `bool` olarak da döndürebilirdim; ama oyuncuya sadece max seviyede uyarı gösteriliyor ve bunun için birleşmemenin sebebini bilmek gerekiyor.
+- Bu işlerin hepsi başta `ItemMerger` adlı tek bir sınıftaydı; ama adı merge diyen sınıf vurgu, taşıma ve geri dönmeyi de yapıyordu. Şimdi her biri yaptığı işin adını taşıyor: `ItemMerger` sadece merge gerçekten olacaksa çalışıyor, `ItemHighlighter` sadece vurgunun kararını veriyor, `ItemDragHandler` akışı yönetiyor. Highlighter ve merger servis değil; handler'la aynı objede duruyor ve handler'ın işini görüyorlar.
+- Item'lar handler'ı sürükleme sırasında `IItemDragHandler` üzerinden buluyor. Başta merge'ü yapan sınıfı `ItemCreator` item'ları oluştururken item'lara veriyordu; ama merge de creator'ı kullandığından ikisi birbirine bağlıydı. Handler servis olunca bağımlılık tek yöne indi: merger creator'ı kullanıyor, creator merger'ı hiç bilmiyor.
+- `IItemDragHandler` diğer interface'lerin aksine `internal`. Metotları item sistemine ait `Item` tipini alıyor ve başka bir sistemin ona erişmesi gerekmiyor; public olsaydı item'ın iç tipini dışarı açmak gerekirdi.
+- Sürüklenen item en üstte çiziliyor; sürükleme sırasındaki sorting order `ItemDragConfig`'te, bırakınca prefab'daki değere dönüyor. Sürüklemeye başlarken bir artırıp bırakınca bir azaltmak da mümkündü; ama bir bırakma kaçarsa item kalıcı olarak yanlış katmanda kalırdı.
+- Sürüklerken parmağın altında bir item varsa onun hücresi vurgulanıyor: birleşebiliyorsa yeşil, birleşemiyorsa kırmızı. Boş hücreler vurgulanmıyor; oraya bırakmak her zaman taşımak demek ve oyuncunun bilmesi gereken bir şey değil. Her hücreye ayrı bir vurgu durumu tutmak yerine tek bir vurgu objesi hedef hücrenin üstüne taşınıyor (`CellHighlighter`). Renkler grid'in yerleşiminden ayrı, `CellHighlighterConfig`'te.
+- Item'lar object pool'dan geliyor; Unity'nin hazır `UnityEngine.Pool.ObjectPool<T>`'si kullanılıyor. `ItemCreator` item'ı pool'dan alıyor, merge'de silinen item'lar `Destroy` yerine pool'a geri dönüyor; yeni bir item oluşturmak gerektiğinde önce pool'daki pasif item'lar kullanılıyor. Pool'u kendim de yazabilirdim; ama Unity'nin pool'u hazır ve test edilmiş, editörde aynı item'ın iki kez geri verilmesini de yakalıyor.
+- Pool'a dönen item sıfırlanıyor: çalışan tween'leri durduruluyor, collider'ı kapanıyor ve obje pasif oluyor. Pozisyon, ölçek ve görsel item pool'dan tekrar alınınca baştan veriliyor. Pool'a sadece bir hücrenin sahibi olan item'lar dönebiliyor (merge); yolda olan bir item'ın collider'ı kapalı olduğu için merge'e hedef olamıyor, bu yüzden bekleyen bir yerleşme hiçbir zaman yarıda kalıp pool'daki bir item'a uygulanmıyor.
+- Merge sonucu oluşan item hedef hücrede küçük başlayıp büyüyerek beliriyor; taşınan ya da geri dönen item hücresine kısa bir tween ile kayıyor. Süreler ve ease'ler `ItemAnimationConfig`'te.
 
 ## Tasarım kalıpları
 
@@ -123,7 +148,7 @@ Scripts/
 | Observer (Event Bus) | `EventBus`, `Game.Events` | Atan ve dinleyen birbirini tanımıyor (loading ekranı, sahne yükleme) | C# event'leri; dinleyenin atan sınıfa referans tutması gerekirdi |
 | Type Object | `ItemChainData`, `SpawnerData` | Item ve spawner türleri sınıf değil veri; yeni tür kodsuz ekleniyor | Her item türü için alt sınıf ya da enum + switch; her yeni tür kod değişikliği |
 | Factory | `ItemCreator`, `SpawnerBarCreator`, `GridCreator` | Oluşturma tek yerde; prefab'ı, animasyonu ve yerleşmeyi çağıran taraf bilmiyor | Her çağıranın kendisi `Instantiate` etmesi; aynı kurulum kodu birkaç yerde tekrar ederdi |
-
+| Object Pool | `ItemCreator` (`UnityEngine.Pool.ObjectPool<Item>`) | Merge'de silinen item'lar yeniden kullanılıyor; oyun boyunca sürekli `Instantiate`/`Destroy` ve bunun getirdiği GC yükü oluşmuyor | Her seferinde `Instantiate`/`Destroy`; tahtada en fazla grid boyutu kadar item olduğu için maliyeti küçük olurdu, ama oyun uzadıkça birikiyor. Pool'u elle yazmak; Unity'nin hazır pool'u yeterli |
 ## Bilinen kısıtlamalar
 
 - Kamera sadece tahtayı sığdırıyor. 3:4 gibi geniş ekranlarda (tablet) tahta yüksekliğe göre sığdığı için altındaki spawner sırası kısmen ekran dışında kalabilir.

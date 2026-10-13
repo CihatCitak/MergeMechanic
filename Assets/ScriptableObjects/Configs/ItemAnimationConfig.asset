@@ -16,3 +16,8 @@ MonoBehaviour:
   _spawnJumpPower: 1
   _spawnEase: 6
   _spawnStartScale: 0.7
+  _moveDuration: 0.15
+  _moveEase: 6
+  _mergeDuration: 0.3
+  _mergeEase: 27
+  _mergeStartScale: 0.5

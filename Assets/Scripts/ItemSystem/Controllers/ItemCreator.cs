@@ -2,12 +2,15 @@ using Cysharp.Threading.Tasks;
 using Game.Core.Services;
 using Game.GridSystem;
 using UnityEngine;
+using UnityEngine.Pool;
 
 namespace Game.ItemSystem
 {
     internal class ItemCreator : BaseService, IItemCreator
     {
         [SerializeField] private Item _prefab;
+
+        private ObjectPool<Item> _pool;
 
         protected override void BindServices()
         {
@@ -19,17 +22,50 @@ namespace Game.ItemSystem
             ServiceLocator.Unbind<IItemCreator>(this);
         }
 
-        public void Create(ItemChainData chain, int level, Vector2 origin, Vector2Int cell)
+        protected override void Initialize()
         {
-            CreateAsync(chain, level, origin, cell).Forget();
+            _pool = new ObjectPool<Item>(
+                () => Instantiate(_prefab, transform),
+                item => item.gameObject.SetActive(true),
+                item => item.Deactivate(),
+                item => Destroy(item.gameObject));
         }
 
-        private async UniTaskVoid CreateAsync(ItemChainData chain, int level, Vector2 origin, Vector2Int cell)
+        public void Create(ItemChainData chain, int level, Vector2 origin, Vector2Int cell)
         {
-            var item = Instantiate(_prefab, origin, Quaternion.identity, transform);
-            item.Setup(chain, level);
+            SpawnAsync(chain, level, origin, cell).Forget();
+        }
+
+        public void CreateMerged(ItemChainData chain, int level, Vector2Int cell)
+        {
+            MergeAsync(chain, level, cell).Forget();
+        }
+
+        public void Recycle(Item item)
+        {
+            _pool.Release(item);
+        }
+
+        private async UniTaskVoid SpawnAsync(ItemChainData chain, int level, Vector2 origin, Vector2Int cell)
+        {
+            var item = CreateItem(chain, level, origin);
             await item.PlaySpawnAsync(ServiceLocator.Get<IGrid>().CellToWorld(cell), item.destroyCancellationToken);
-            ServiceLocator.Get<IGridObjectHolder>().Occupy(cell, item);
+            item.Place(cell);
+        }
+
+        private async UniTaskVoid MergeAsync(ItemChainData chain, int level, Vector2Int cell)
+        {
+            var item = CreateItem(chain, level, ServiceLocator.Get<IGrid>().CellToWorld(cell));
+            await item.PlayMergeAsync(item.destroyCancellationToken);
+            item.Place(cell);
+        }
+
+        private Item CreateItem(ItemChainData chain, int level, Vector2 position)
+        {
+            var item = _pool.Get();
+            item.transform.position = position;
+            item.Setup(chain, level);
+            return item;
         }
     }
 }

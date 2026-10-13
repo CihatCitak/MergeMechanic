@@ -22,17 +22,20 @@ namespace Game.SceneSystem
             ServiceLocator.Unbind<ISceneLoader>(this);
         }
 
-        public async UniTask LoadMainAsync()
+        public UniTask LoadMainAsync()
         {
-            EventBus.Fire(new SceneLoadStartedEvent());
-            await SceneManager.LoadSceneAsync(_mainSceneName);
-            EventBus.Fire(new SceneLoadCompletedEvent());
+            return LoadAsync(_mainSceneName);
         }
 
-        public async UniTask LoadGameplayAsync()
+        public UniTask LoadGameplayAsync()
+        {
+            return LoadAsync(_gameplaySceneName);
+        }
+
+        private static async UniTask LoadAsync(string sceneName)
         {
             EventBus.Fire(new SceneLoadStartedEvent());
-            await SceneManager.LoadSceneAsync(_gameplaySceneName);
+            await SceneManager.LoadSceneAsync(sceneName);
             EventBus.Fire(new SceneLoadCompletedEvent());
         }
     }
