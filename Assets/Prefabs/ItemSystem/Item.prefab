@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 5312567855096650800}
   - component: {fileID: 5101189082067600580}
   - component: {fileID: 6784040852328014092}
+  - component: {fileID: 5283577482045789365}
   m_Layer: 0
   m_Name: Item
   m_TagString: Untagged
@@ -46,9 +47,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bbb7afb7125c8cb4da52024ec5b4e023, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _animationConfig: {fileID: 11400000, guid: d254b034abada2b44bb071ee8a2ee855, type: 2}
-  _itemDragConfig: {fileID: 11400000, guid: 6a9fe6fe23da55f45ab6a8a87a10cca8, type: 2}
-  _renderer: {fileID: 3149855078193307339}
+  _view: {fileID: 5283577482045789365}
   _collider: {fileID: 6784040852328014092}
 --- !u!61 &6784040852328014092
 BoxCollider2D:
@@ -96,6 +95,21 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
+--- !u!114 &5283577482045789365
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7561439134453053791}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a49666a17c369948adbedff290f44ab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _animationConfig: {fileID: 11400000, guid: d254b034abada2b44bb071ee8a2ee855, type: 2}
+  _itemDragConfig: {fileID: 11400000, guid: 6a9fe6fe23da55f45ab6a8a87a10cca8, type: 2}
+  _renderer: {fileID: 3149855078193307339}
 --- !u!1 &8535087823652269899
 GameObject:
   m_ObjectHideFlags: 0

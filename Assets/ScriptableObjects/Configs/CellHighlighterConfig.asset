@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 439737e2eee9f8d4cba7fcbc848395bb, type: 3}
   m_Name: CellHighlighterConfig
   m_EditorClassIdentifier: 
-  _mergeableColor: {r: 0.45, g: 1, b: 0.45, a: 1}
-  _notMergeableColor: {r: 1, g: 0.4, b: 0.4, a: 1}
+  _validColor: {r: 0.45, g: 1, b: 0.45, a: 1}
+  _invalidColor: {r: 1, g: 0.4, b: 0.4, a: 1}

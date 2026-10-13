@@ -10,6 +10,7 @@ namespace Game.GridSystem
         [SerializeField] private GridConfig _gridConfig;
 
         private readonly List<Vector2Int> _emptyCells = new();
+        private readonly Dictionary<IGridObject, Vector2Int> _cells = new();
         private IGridObject[,] _objects;
         private bool[,] _reserved;
 
@@ -33,11 +34,20 @@ namespace Game.GridSystem
         {
             _objects = new IGridObject[size.x, size.y];
             _reserved = new bool[size.x, size.y];
+            _cells.Clear();
         }
 
         public IGridObject Get(Vector2Int cell)
         {
             return _objects[cell.x, cell.y];
+        }
+
+        public Vector2Int CellOf(IGridObject gridObject)
+        {
+            if (!_cells.TryGetValue(gridObject, out var cell))
+                throw new InvalidOperationException($"{gridObject} has no cell.");
+
+            return cell;
         }
 
         public bool IsEmpty(Vector2Int cell)
@@ -76,6 +86,7 @@ namespace Game.GridSystem
 
             _reserved[cell.x, cell.y] = false;
             _objects[cell.x, cell.y] = gridObject;
+            _cells.Add(gridObject, cell);
         }
 
         public void Vacate(Vector2Int cell)
@@ -83,6 +94,7 @@ namespace Game.GridSystem
             if (_objects[cell.x, cell.y] == null)
                 throw new InvalidOperationException($"Cell {cell} has no owner.");
 
+            _cells.Remove(_objects[cell.x, cell.y]);
             _objects[cell.x, cell.y] = null;
         }
 

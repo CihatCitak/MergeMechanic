@@ -40,7 +40,7 @@ namespace Game.ItemSystem
         public Item CreateMerged(ItemChainData chain, int level, Vector2Int cell)
         {
             var item = CreatePlaced(chain, level, cell);
-            item.PlayMerge();
+            item.View.PlayMerge();
             return item;
         }
 
@@ -60,7 +60,7 @@ namespace Game.ItemSystem
         private async UniTaskVoid SpawnAsync(ItemChainData chain, int level, Vector2 origin, Vector2Int cell)
         {
             var item = CreateItem(chain, level, origin);
-            await item.PlaySpawnAsync(ServiceLocator.Get<IGrid>().CellToWorld(cell), item.destroyCancellationToken);
+            await item.View.PlaySpawnAsync(ServiceLocator.Get<IGrid>().CellToWorld(cell), item.destroyCancellationToken);
             item.Place(cell);
         }
 

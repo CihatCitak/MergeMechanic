@@ -64,16 +64,6 @@ namespace Game.PopupSystem
             Top.Open(_popupConfig);
         }
 
-        public void CloseAll()
-        {
-            if (_stack.Count == 0)
-                return;
-
-            Top.Close(_popupConfig);
-            _stack.Clear();
-            FadeDimmer(0f, _popupConfig.CloseDuration);
-        }
-
         private T GetOrCreate<T>() where T : BasePopupView
         {
             foreach (var instance in _instances)

@@ -23,10 +23,10 @@ namespace Game.GridSystem
             ServiceLocator.Unbind<ICellHighlighter>(this);
         }
 
-        public void ShowTarget(Vector2Int cell, bool isMergeable)
+        public void ShowTarget(Vector2Int cell, bool isValid)
         {
             PlaceOnCell(_highlight, cell);
-            _highlight.color = isMergeable ? _cellHighlighterConfig.MergeableColor : _cellHighlighterConfig.NotMergeableColor;
+            _highlight.color = isValid ? _cellHighlighterConfig.ValidColor : _cellHighlighterConfig.InvalidColor;
             _highlight.gameObject.SetActive(true);
         }
 

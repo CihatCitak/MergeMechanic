@@ -5,6 +5,7 @@ namespace Game.GridSystem
     public interface IGridObjectHolder
     {
         IGridObject Get(Vector2Int cell);
+        Vector2Int CellOf(IGridObject gridObject);
         bool IsEmpty(Vector2Int cell);
         void Reserve(Vector2Int cell);
         bool TryReserveRandomEmptyCell(out Vector2Int cell);
