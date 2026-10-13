@@ -22,9 +22,14 @@ namespace Game.ItemSystem
             ServiceLocator.Unbind<IItemDragHandler>(this);
         }
 
+        public void Pick(Item item)
+        {
+            _highlighter.ShowCandidates(item);
+        }
+
         public void Drag(Item item, Vector2 world)
         {
-            _highlighter.Show(item, world);
+            _highlighter.ShowTarget(item, world);
         }
 
         public void Drop(Item item, Vector2 world)
@@ -52,6 +57,9 @@ namespace Game.ItemSystem
 
                     if (result == MergeResult.MaxLevel)
                         ServiceLocator.Get<IToastService>().Show(_itemDragConfig.MaxLevelMessage);
+
+                    RejectAsync(item).Forget();
+                    return;
                 }
             }
 
@@ -64,6 +72,12 @@ namespace Game.ItemSystem
             ServiceLocator.Get<IGridObjectHolder>().Reserve(cell);
             await item.MoveToAsync(ServiceLocator.Get<IGrid>().CellToWorld(cell), item.destroyCancellationToken);
             item.Place(cell);
+        }
+
+        private static async UniTaskVoid RejectAsync(Item item)
+        {
+            await item.MoveToAsync(ServiceLocator.Get<IGrid>().CellToWorld(item.Cell), item.destroyCancellationToken);
+            item.PlayReject();
         }
     }
 }

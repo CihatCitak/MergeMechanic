@@ -53,7 +53,7 @@ namespace Game.ItemSystem
         public void Deactivate()
         {
             transform.DOKill();
-            _renderer.transform.DOKill();
+            _renderer.transform.DOKill(true);
             _collider.enabled = false;
             _renderer.sortingOrder = _sortingOrder;
             gameObject.SetActive(false);
@@ -64,6 +64,7 @@ namespace Game.ItemSystem
             if (_moveTween.IsActive())
                 _moveTween.Kill();
             _renderer.sortingOrder = _itemDragConfig.DragSortingOrder;
+            ServiceLocator.Get<IItemDragHandler>().Pick(this);
         }
 
         public void DragTo(Vector2 world)
@@ -91,6 +92,13 @@ namespace Game.ItemSystem
         {
             _renderer.transform.localScale = Vector3.one * _animationConfig.MergeStartScale;
             _renderer.transform.DOScale(1f, _animationConfig.MergeDuration).SetEase(_animationConfig.MergeEase).SetLink(gameObject);
+        }
+
+        public void PlayReject()
+        {
+            _renderer.transform.DOKill(true);
+            _renderer.transform.DOShakePosition(_animationConfig.RejectDuration, Vector3.right * _animationConfig.RejectStrength, _animationConfig.RejectVibrato, 0f)
+                .SetLink(gameObject);
         }
 
         public UniTask MoveToAsync(Vector2 target, CancellationToken cancellationToken)
