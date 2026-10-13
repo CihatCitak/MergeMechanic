@@ -1,12 +1,13 @@
 using Game.Core.Events;
 using Game.Core.Services;
 using Game.Events;
+using Game.PlayerSystem;
 
 namespace Game.ScoreSystem
 {
     internal class ScoreController : BaseService, IScore
     {
-        public int Current { get; private set; }
+        public int Current => ServiceLocator.Get<IPlayerProgress>().Score;
 
         protected override void BindServices()
         {
@@ -30,7 +31,8 @@ namespace Game.ScoreSystem
 
         private void OnItemMerged(ItemMergedEvent e)
         {
-            Current += e.Score;
+            var playerProgress = ServiceLocator.Get<IPlayerProgress>();
+            playerProgress.SaveScore(playerProgress.Score + e.Score);
         }
     }
 }

@@ -22,8 +22,9 @@ namespace Game.ItemSystem
             ServiceLocator.Unbind<IItemCreator>(this);
         }
 
-        protected override void Initialize()
+        protected override void Awake()
         {
+            base.Awake();
             _pool = new ObjectPool<Item>(
                 () => Instantiate(_prefab, transform),
                 item => item.gameObject.SetActive(true),
@@ -38,10 +39,16 @@ namespace Game.ItemSystem
 
         public Item CreateMerged(ItemChainData chain, int level, Vector2Int cell)
         {
+            var item = CreatePlaced(chain, level, cell);
+            item.PlayMerge();
+            return item;
+        }
+
+        public Item CreatePlaced(ItemChainData chain, int level, Vector2Int cell)
+        {
             var item = CreateItem(chain, level, ServiceLocator.Get<IGrid>().CellToWorld(cell));
             ServiceLocator.Get<IGridObjectHolder>().Reserve(cell);
             item.Place(cell);
-            item.PlayMerge();
             return item;
         }
 

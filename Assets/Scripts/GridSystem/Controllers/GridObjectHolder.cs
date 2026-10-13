@@ -23,8 +23,9 @@ namespace Game.GridSystem
             ServiceLocator.Unbind<IGridObjectHolder>(this);
         }
 
-        protected override void Initialize()
+        protected override void Awake()
         {
+            base.Awake();
             Allocate(_gridConfig.Size);
         }
 

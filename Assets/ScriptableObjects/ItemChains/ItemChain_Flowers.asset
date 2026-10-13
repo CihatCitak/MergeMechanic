@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e6911662d31e43945a8e04a056268f01, type: 3}
   m_Name: ItemChain_Flowers
   m_EditorClassIdentifier: 
+  _id: flowers
   _levels:
   - _sprite: {fileID: 21300000, guid: 85458ac4fd07ef34d9582a9416f53d9e, type: 3}
     _mergeScore: 0

@@ -51,10 +51,12 @@ Scripts/
 
 - Sahneler: Splash → MainMenu → Gameplay. Sahneler additive değil, tek tek yükleniyor; iki sahne aynı anda açık olsaydı kameralar, EventSystem'ler ve sahneye ait servisler çakışırdı.
 - Splash kısa bir süre görünüp ana menüyü açıyor. Splash'te kamera yok; ekran `Screen Space - Overlay` canvas ile çiziliyor.
-- Ana menüde sadece "Oyna" butonu var. Gameplay'deki "Menü" butonu ana menüye dönüyor.
+- Ana menüde sadece "Oyna" butonu var. Gameplay'de sol üstteki geri butonu ana menüye dönüyor, sağ üstteki buton oyunu sıfırlıyor (bkz. Kayıt).
 - Loading ekranı Splash'te kendi prefab'ıyla duruyor, sahne değişirken kaybolmaması için kendini `DontDestroyOnLoad` yapıyor. Her yüklemenin başında (`SceneLoadStartedEvent`) açılıp yükleme bitince (`SceneLoadCompletedEvent`) kapanıyor.
 - "Ana menü yüklendi" ve "level hazır" diye iki ayrı event tutabilirdim. Ama şu an iki sahne de yüklendiği anda kullanıma hazır; ikisini de `SceneLoader` atıyor ve tek bir event yetiyor. Gameplay'in hazırlanması bekleme gerektirirse, hazır olduğunu Gameplay'in kendisi duyuracak.
 - Canvas'lar 1080×2400 referans çözünürlüğünde ve `Expand` modunda; UI hiçbir ekran oranında taşmıyor. Arayüz cihazın safe area'sına yerleşiyor.
+- Yazılar Türkçe karakterleri de içeren statik bir font atlasıyla çiziliyor (`Art/Fonts/LiberationSans SDF - TR`; ASCII ve ÇĞİıÖŞÜ). TMP'nin dinamik fallback'i de bu karakterleri üretebiliyordu; ama dinamik atlas oyun çalışırken büyüyüp asset'i değiştiriyor, cihazda da her karakterin ilk kullanımında üretme maliyeti oluyor. Yeni bir karakter gerekirse atlasa eklenmesi gerekiyor.
+- Butonlar diğer görsellerle aynı kurallarla çizilmiş 9-slice bir sprite (`button_9slice`) kullanıyor. Sprite gri tonlu, rengi `Image.color`'dan geliyor; her renk için ayrı sprite çizmek yerine aynı sprite farklı renkteki butonlarda kullanılıyor.
 
 ## Item tanım yapısı
 
@@ -62,6 +64,7 @@ Scripts/
 - Item'lar kod içinde bir enum ve tabloyla da tanımlanabilirdi. Ama o zaman her yeni item kod değişikliği demekti. ScriptableObject ile zincirler Inspector'dan ekleniyor, sprite'lar sürüklenip bırakılıyor.
 - Her item'ı ayrı bir asset olarak da tanımlayabilirdim; her item bir sonraki level'ı gösterirdi. Ama 5 level'lık bir zincir 5 ayrı asset olur, aradaki bağlantılar elle kurulurdu ve bir halka unutulunca zincir kopardı. Zincirin bütün level'ları tek asset'te ve sıralı; sıradaki level, listedeki sıradaki eleman.
 - Bir item'ın kimliği sadece zinciri ve level'ı. Max level ayrıca girilmiyor, zincirdeki level sayısından geliyor; iki ayrı yerde tutulsaydı birbiriyle çelişebilirdi.
+- Her zincirin kayıtta kullanılan bir `Id`'si var ve bütün zincirler `ItemCatalog`'ta listeleniyor (bkz. Kayıt).
 - Merge skoru ayrı bir skor tablosunda da tutulabilirdi. Ama skor item'ın bir özelliği; level'ın içinde durunca yeni bir zincir kendi skorlarıyla birlikte ekleniyor ve zincirler farklı puan verebiliyor. Skor, merge sonucu oluşan level'ın skoru. Level 1 merge ile oluşmadığı için skoru 0.
 - Spawner'lar da ScriptableObject (`SpawnerData`): generator görseli ve hangi zincirden ürettiği.
 - Oyunda hangi spawner'ların olacağı ve kaçıncı seviye item ürettikleri `SpawnerBarConfig`'te. Üretilen seviye spawner'ın kendisinde değil, oyundaki yerleşiminde tutuluyor; aynı spawner farklı bir yerleşimde farklı seviyeden üretebiliyor.
@@ -69,9 +72,10 @@ Scripts/
 
 **Yeni bir zincir eklemek (kod değişikliği yok):**
 
-1. `Create > Game > Item Chain` ile asset oluştur; level'ları sırayla ekle, her birine sprite ve merge skoru ver.
-2. Zinciri mevcut bir spawner'ın `Chains` listesine ekle ya da `Create > Game > Spawner` ile yeni bir spawner oluştur.
-3. Yeni spawner'ı `SpawnerBarConfig`'teki `Spawners` listesine, üreteceği seviyeyle birlikte ekle.
+1. `Create > Game > Item Chain` ile asset oluştur; benzersiz bir `Id` ver, level'ları sırayla ekle, her birine sprite ve merge skoru ver.
+2. Zinciri `ItemCatalog`'taki `Chains` listesine ekle; kayıttan yüklenirken zincir burada aranıyor.
+3. `Create > Game > Spawner` ile zinciri üreten bir spawner oluştur.
+4. Yeni spawner'ı `SpawnerBarConfig`'teki `Spawners` listesine, üreteceği seviyeyle birlikte ekle.
 
 ## Grid
 
@@ -80,7 +84,7 @@ Scripts/
 - Grid'i oluşturmak ile grid'le ilgili soruları cevaplamak ayrı sorumluluklar. Hücreleri ve kenarlığı `GridCreator` oluşturuyor; akış yine `GridController`'dan başlıyor, açılışta creator'a config'i verip grid'i kurduruyor. Creator kimseye açılmıyor; grid'i sadece controller kurabiliyor.
 - Hücreler ve kenarlık prefab'dan oluşuyor. Kenarlık 9-slice bir sprite; kendi script'i (`GridCorner`) renderer'ını tutuyor ve creator ona sadece boyutunu veriyor, böylece her grid boyutunda bozulmadan uzuyor.
 - Hücreler tahtanın altında local pozisyonlarıyla diziliyor; tahta kendi merkezine göre kurulduğu için grid boyutu tek veya çift olsun ortada kalıyor.
-- `IGrid` sadece kullanılan sorguları açıyor: tahtanın kapladığı alan (kamera ve spawner sırası), hücre ↔ dünya pozisyonu dönüşümü (yerleştirme ve sürükleme) ve bir hücrenin tahtanın içinde olup olmadığı. Hücre boyutunu veya tahtanın sahnedeki yerini kimse bilmiyor; ikisi de değişse grid'i kullanan kod değişmiyor.
+- `IGrid` sadece kullanılan sorguları açıyor: tahtanın kapladığı alan (kamera ve spawner sırası), hücre ↔ dünya pozisyonu dönüşümü (yerleştirme ve sürükleme), bir hücrenin tahtanın içinde olup olmadığı ve grid'in boyutu (kayıtta tahtayı dolaşmak). Hücre boyutunu veya tahtanın sahnedeki yerini kimse bilmiyor; ikisi de değişse grid'i kullanan kod değişmiyor.
 - Hücre pozisyonu ve tahta alanı hesabı (`GridMath`) `internal`; dışarıdan herkesin çağırabileceği bir yardımcı sınıf olsaydı her çağıran grid boyutunu ve hücre boyutunu kendisi vermek zorunda kalırdı. Creator ve controller aynı alan hesabını kullandığı için kenarlık ile kameranın sığdırdığı alan hep aynı. Ayrı bir sınıfta durmasının sebebi saf fonksiyon olarak test edilebilmesi.
 - Pozisyondan hücreye çevirirken `Mathf.RoundToInt` kullanmadım; tam yarıda en yakın çift sayıya yuvarladığı için hücre sınırlarında bir hücre bir yöne, diğeri öbür yöne kayardı. `FloorToInt` her sınırda aynı davranıyor.
 
@@ -98,7 +102,7 @@ Scripts/
   
   Kiralama üçünü de çözüyor: hücre seçildiği an başkasına kapanıyor, ama içindeki item varana kadar kimse ona dokunamıyor ve oyuncu hiç beklemiyor.
 - Kiralanmamış bir hücreyi sahiplenmek, boş olmayan bir hücreyi kiralamak veya sahibi olmayan bir hücreyi boşaltmak hata fırlatıyor. Sessizce yok sayılsaydı grid ile ekran birbirinden ayrışır ve hata çok sonra ortaya çıkardı.
-- Holder diğer servisler gibi `GameplayServiceLocator`'da duruyor ve kendini kaydediyor; hücre dizilerini açılışta `GridConfig`'teki boyutla oluşturuyor. Grid'in sorgularını cevaplayan `GridController`'dan ayrı; biri tahtanın geometrisini, diğeri içindekileri biliyor.
+- Holder diğer servisler gibi `GameplayServiceLocator`'da duruyor ve kendini kaydediyor; hücre dizilerini `Awake`'te `GridConfig`'teki boyutla oluşturuyor (sebebi Kayıt bölümünde). Grid'in sorgularını cevaplayan `GridController`'dan ayrı; biri tahtanın geometrisini, diğeri içindekileri biliyor.
 - Item da hangi hücrede olduğunu ve sürüklenip sürüklenemeyeceğini biliyor. Bu bilgi holder'la birlikte değişmeli; bu yüzden item'ın hücreye yerleşmesi (`Place`) ve hücreden ayrılması (`Unplace`) holder'ı da kendisi güncelliyor. Holder ile item'ı ayrı ayrı güncelleyen çağrılar birkaç yere dağılmıştı; birinde yarısı unutulsa grid ile item birbirinden kopardı. Şimdi bunu yarım yapmanın yolu yok.
 
 ## Kamera
@@ -136,8 +140,10 @@ Scripts/
 - `IItemDragHandler` diğer interface'lerin aksine `internal`. Metotları item sistemine ait `Item` tipini alıyor ve başka bir sistemin ona erişmesi gerekmiyor; public olsaydı item'ın iç tipini dışarı açmak gerekirdi.
 - Sürüklenen item en üstte çiziliyor; sürükleme sırasındaki sorting order `ItemDragConfig`'te, bırakınca prefab'daki değere dönüyor. Sürüklemeye başlarken bir artırıp bırakınca bir azaltmak da mümkündü; ama bir bırakma kaçarsa item kalıcı olarak yanlış katmanda kalırdı.
 - Sürüklerken parmağın altında bir item varsa onun hücresi vurgulanıyor: birleşebiliyorsa yeşil, birleşemiyorsa kırmızı. Boş hücreler vurgulanmıyor; oraya bırakmak her zaman taşımak demek ve oyuncunun bilmesi gereken bir şey değil. Her hücreye ayrı bir vurgu durumu tutmak yerine tek bir vurgu objesi hedef hücrenin üstüne taşınıyor (`CellHighlighter`). Renkler grid'in yerleşiminden ayrı, `CellHighlighterConfig`'te.
+- Sürükleme başlayınca, sürüklenen item'la birleşebilecek item'ların hücreleri sarı işaretleniyor (`ICellHighlighter.ShowCandidates`); hedef vurgusu bu işaretlerin üstünde çiziliyor. Adaylar sürüklemenin başında bir kez bulunuyor. Her karede yeniden bulabilirdim; ama sürükleme sırasında tahtadan item eksilmiyor, sadece spawner'dan yenisi gelebiliyor. Bunun için her kare tahtayı dolaşmaya değmez; sürükleme sırasında tahtaya oturan bir item o sürüklemede işaretlenmiyor.
+- Birleşmeyen bir item'ın üstüne bırakılınca (farklı zincir, farklı seviye, max seviye) item hücresine dönüp kısa bir süre yatayda sallanıyor. Boş alana, tahta dışına ya da kiralanmış hücreye bırakmada sadece geri dönüyor; orada oyuncunun yanlış yaptığı bir şey yok. Sallanma, ölçek animasyonları gibi görselin alt objesinde; collider ve hareket tween'i etkilenmiyor. Süre, güç ve titreşim `ItemAnimationConfig`'te.
 - Item'lar object pool'dan geliyor; Unity'nin hazır `UnityEngine.Pool.ObjectPool<T>`'si kullanılıyor. `ItemCreator` item'ı pool'dan alıyor, merge'de silinen item'lar `Destroy` yerine pool'a geri dönüyor; yeni bir item oluşturmak gerektiğinde önce pool'daki pasif item'lar kullanılıyor. Pool'u kendim de yazabilirdim; ama Unity'nin pool'u hazır ve test edilmiş, editörde aynı item'ın iki kez geri verilmesini de yakalıyor.
-- Pool'a dönen item sıfırlanıyor: çalışan tween'leri durduruluyor, collider'ı kapanıyor ve obje pasif oluyor. Pozisyon, ölçek ve görsel item pool'dan tekrar alınınca baştan veriliyor. Pool'a sadece bir hücrenin sahibi olan item'lar dönebiliyor (merge); yolda olan bir item'ın collider'ı kapalı olduğu için merge'e hedef olamıyor, bu yüzden bekleyen bir yerleşme hiçbir zaman yarıda kalıp pool'daki bir item'a uygulanmıyor.
+- Pool'a dönen item sıfırlanıyor: çalışan tween'leri durduruluyor (görselin büyüme ve sallanma tween'leri sona getirilerek, böylece yarıda kalan bir animasyon bir sonraki kullanımda kaymış ya da küçük bir görsel bırakmıyor), collider'ı kapanıyor ve obje pasif oluyor. Pozisyon, ölçek ve görsel item pool'dan tekrar alınınca baştan veriliyor. Pool'a sadece bir hücrenin sahibi olan item'lar dönebiliyor (merge); yolda olan bir item'ın collider'ı kapalı olduğu için merge'e hedef olamıyor, bu yüzden bekleyen bir yerleşme hiçbir zaman yarıda kalıp pool'daki bir item'a uygulanmıyor.
 - Merge sonucu oluşan item hedef hücrede küçük başlayıp büyüyerek beliriyor; taşınan ya da geri dönen item hücresine kısa bir tween ile kayıyor. Süreler ve ease'ler `ItemAnimationConfig`'te.
 - Bir item sürüklenmeye başlayınca sadece hareket tween'i (taşınma ya da geri dönme) durduruluyor; büyüme animasyonu devam ediyor. Bütün tween'leri durdursaydım, büyümesi bitmeden sürüklenen yeni item yarım boyda kalırdı.
 - Büyüme ve küçülme animasyonları item'ın kendisine değil, görselin durduğu alt objeye (`Visual`) uygulanıyor; collider kökte kaldığı için hep hücre boyunda. Ölçeği kökte animasyonlasaydım collider da küçülür, merge'den hemen sonra item'ı kenarından tutmaya çalışan dokunuşlar boşa giderdi.
@@ -145,11 +151,28 @@ Scripts/
 ## Skor
 
 - Her başarılı merge, oluşan item'ın level'ındaki `MergeScore` kadar puan kazandırıyor; puan değerleri zincir verisinde, koda yazılmıyor. Seviye yükseldikçe puan artıyor (şu an L2 = 10, L3 = 25, L4 = 50, L5 = 100).
-- Merge olunca `ItemMerger` bir `ItemMergedEvent` fırlatıyor (merge'ün olduğu pozisyon ve kazanılan puan). Skoru doğrudan çağırabilirdim; ama merge'ün olması skordan bağımsız bir bildirim. Item sistemi skordan haberdar değil; skoru, efekti ve ileride kaydı ilgilendiren her sistem aynı event'i kendisi dinliyor.
-- Gerçek skoru `ScoreController` (`IScore`) tutuyor ve merge olduğu anda artırıyor. Ekrandaki sayı ise merge'ün olduğu yerden üstteki skor barına uçan yıldız vardığında artıyor (`ScoreStarFlight`, `ScoreView`). Skorun kendisini de yıldız varınca artırabilirdim; ama o zaman yıldız yoldayken oyundan çıkılırsa puan kaybolurdu. Gerçek değer anında doğru, sadece gösterimi animasyonlu.
+- Merge olunca `ItemMerger` bir `ItemMergedEvent` fırlatıyor (merge'ün olduğu pozisyon ve kazanılan puan). Skoru doğrudan çağırabilirdim; ama merge'ün olması skordan bağımsız bir bildirim. Item sistemi skordan haberdar değil; skoru ve efekti ilgilendiren her sistem aynı event'i kendisi dinliyor.
+- Gerçek skor kayıtta duruyor; `ScoreController` (`IScore`) onu merge olduğu anda artırıp kaydediyor. Ekrandaki sayı ise merge'ün olduğu yerden üstteki skor barına uçan yıldız vardığında artıyor (`ScoreStarFlight`, `ScoreView`). Skorun kendisini de yıldız varınca artırabilirdim; ama o zaman yıldız yoldayken oyundan çıkılırsa puan kaybolurdu. Gerçek değer anında doğru, sadece gösterimi animasyonlu.
 - Skor barı HUD'da, safe area içinde. Barı da spawner sırası gibi dünyada kurabilirdim; ama UI'da olunca çentikli ekranlara uyuyor ve kameranın tahtayı sığdırma hesabına girmiyor. Uçan yıldız, merge'ün dünya pozisyonu ekran pozisyonuna çevrilerek UI'da oluşuyor.
 - Uçan yıldızlar da item'lar gibi `ObjectPool`'dan geliyor. Uçuş süresi, ease ve ikonun büyüme animasyonu `ScoreConfig`'te.
 - Skor barındaki yıldız görseli diğer görsellerle aynı kurallarla çizildi: 32×32 piksel, 8 kat büyütülmüş, koyu kontur, sol üstte açık ve sağ altta koyu ton.
+
+## Kayıt
+
+- Skor ve tahtadaki item'lar tek bir `player.json` dosyasında. Dosyayı `PlayerDataStore` (`IPlayerProgress`) okuyup yazıyor; proje boyunca yaşayan servislerle birlikte Splash'teki `ProjectServiceLocator`'da duruyor ve dosyayı açılışta bir kez okuyor. Her sistem kendi dosyasını yazabilirdi; ama kayıt Gameplay açılmadan hazır olunca, skoru ve tahtayı kuran sistemler "kayıt okundu mu" diye `Start` sırasına güvenmek zorunda kalmıyor.
+- Store sadece okuyup yazıyor, oyun kuralı bilmiyor. Tahtadaki bir item'ın kaydı (`BoardItemData`) düz veri: zincirin id'si, level ve hücre. Kayıt sistemi item ve skor sistemlerini tanımıyor; bağımlılık onlardan kayda doğru.
+- Dosya JSON; Unity'nin `JsonUtility`'siyle yazılıyor (`Core/Utilities/JsonFileUtility`). PlayerPrefs da kullanılabilirdi; ama tahta bir liste ve PlayerPrefs liste tutmuyor, elle string'e çevirmek gerekirdi.
+- Zincir kayda asset adıyla ya da listedeki sırasıyla değil, kendi `Id`'siyle yazılıyor; yüklenirken `ItemCatalog` id'den zinciri buluyor. Asset adı yeniden adlandırınca, sıra da liste değişince değişir ve eski kayıtlar bozulurdu.
+- Tahta, bir item hücresine her oturduğunda kaydediliyor: item `Place` olunca `ItemPlacedEvent` atıyor, `ItemBoardSaver` tahtayı dolaşıp kaydı yeniliyor. Sadece uygulama durunca ya da kapanırken kaydetmek de mümkündü; ama o anda yolda olan (doğan ya da taşınan) bir item hiçbir hücrede olmadığı için kayıttan düşerdi, Android de uygulamayı haber vermeden kapatabiliyor. Yerleşme anında kaydedince yarım kalmış bir durum hiç yazılmıyor. Tahtada en fazla 25 item var; her hamlede yazmanın maliyeti yok.
+- Her kayıtta tahtanın tamamı holder'dan baştan okunuyor. Sadece son işlemi (merge'de silinen iki item ve yeni item, taşımada eski ve yeni hücre) kayda işleyebilirdim; ama maliyetin asıl kısmı tarama değil, dosyanın tamamının yeniden yazılması ve o her iki yolda da aynı. Değişiklik bazlı güncellemede kayıttaki liste tahtanın ikinci bir kopyası olurdu; bir akış onu güncellemeyi unutursa kayıt sessizce gerçek tahtadan sapar, hata da ancak oyun yeniden açılınca görünürdü. Tahtanın tamamını okuyunca kayıt hep holder'ın anlık görüntüsü; bir sapma olsa bile bir sonraki yerleşmede kendiliğinden düzeliyor. Kayıt bir gün ağırlaşırsa iyileştirilecek yer dosya yazma olur (değişiklikleri biriktirip aralıklarla ve uygulama arka plana geçerken yazmak).
+- Yerleşme event ile duyuruluyor, çünkü item kaydı bilmiyor. Üretim, taşıma ve merge'ün hepsi aynı `Place`'ten geçtiği için kaydedenin her akışa ayrıca çağrı eklemesi gerekmiyor.
+- Skor, arttığı anda kaydediliyor.
+- Gameplay açılınca kayıttaki item'lar animasyonsuz, doğrudan hücrelerine yerleştiriliyor. Bilinmeyen bir zincir id'si, zincirde olmayan bir level ya da tahtanın dışında kalan bir hücre (örneğin grid küçültüldüyse) atlanıyor; oyun açılmaya devam ediyor. Kaydetme yükleme bittikten sonra başlıyor; yüklenen item'ların yerleşmesi dosyayı tekrar yazmıyor.
+- Yükleme `Start`'ta item yerleştirdiği için holder'ın hücre dizileri ve item pool'u `Awake`'te kuruluyor; aksi halde `Start`'ların sırasına kalırdı. İkisi de sadece kendi ayarını kullanıyor, başka bir servise erişmiyor; "`Awake`'te başka servise erişilmez" kuralı korunuyor.
+- Gameplay'de sağ üstteki buton oyunu sıfırlıyor; önce bir onay popup'ı soruyor (`ResetPopupView`). Onaylanınca kayıt silinip Gameplay sahnesi yeniden yükleniyor. Tahtayı ve skoru yerinde temizlemek de mümkündü; ama her sistem için ayrı bir "temizle" yolu yazmak ve ekrandaki skoru ayrıca güncellemek gerekirdi. Sahneyi yeniden yüklemek her şeyi zaten var olan oyuna giriş yolundan sıfırlıyor.
+- Sahne yüklenmeye başlayınca (`SceneLoadStartedEvent`) tahta kaydedilmeyi bırakıyor. Sıfırlama onaylandığı anda yolda bir item varsa, sahne kapanmadan yerine oturup silinen kaydı eski tahtayla geri yazmasın diye.
+- Popup'ları `PopupService` açıyor; Toast gibi `GameplayServiceLocator`'da duruyor. Popup'ların açıldığı katman ve arkadaki karartma HUD'da; servise sahnede referans olarak veriliyor.
+- Editörde `MergeMechanic > Reset Player Data` menüsü kaydı siliyor; play mode dışında kullanılabiliyor.
 
 ## Tasarım kalıpları
 
@@ -157,7 +180,7 @@ Scripts/
 |---|---|---|---|
 | Service Locator | `ServiceLocator`, `ISceneLoader` | Servislere interface üzerinden, kurulum maliyeti olmadan erişim | Zenject gibi bir DI container; bu boyutta öğrenme ve açılış maliyeti fazla |
 | Singleton | `MonoSingleton` (`ServiceLocator`) | Proje boyunca tek bir locator, sahne geçişlerinde yaşıyor | Saf statik sınıf; ama o zaman Splash'teki servislerle birlikte bir prefab'da duramazdı |
-| Observer (Event Bus) | `EventBus`, `Game.Events` | Atan ve dinleyen birbirini tanımıyor (loading ekranı ve sahne yükleme; merge ile skor ve uçan yıldız) | C# event'leri; dinleyenin atan sınıfa referans tutması gerekirdi |
+| Observer (Event Bus) | `EventBus`, `Game.Events` | Atan ve dinleyen birbirini tanımıyor (loading ekranı ve sahne yükleme; merge ile skor ve uçan yıldız; item yerleşmesi ile kayıt) | C# event'leri; dinleyenin atan sınıfa referans tutması gerekirdi |
 | Type Object | `ItemChainData`, `SpawnerData` | Item ve spawner türleri sınıf değil veri; yeni tür kodsuz ekleniyor | Her item türü için alt sınıf ya da enum + switch; her yeni tür kod değişikliği |
 | Factory | `ItemCreator`, `SpawnerBarCreator`, `GridCreator` | Oluşturma tek yerde; prefab'ı, animasyonu ve yerleşmeyi çağıran taraf bilmiyor | Her çağıranın kendisi `Instantiate` etmesi; aynı kurulum kodu birkaç yerde tekrar ederdi |
 | Object Pool | `ItemCreator`, `ScoreStarFlight` (`UnityEngine.Pool.ObjectPool<T>`) | Merge'de silinen item'lar ve uçan yıldızlar yeniden kullanılıyor; oyun boyunca sürekli `Instantiate`/`Destroy` ve bunun getirdiği GC yükü oluşmuyor | Her seferinde `Instantiate`/`Destroy`; tahtada en fazla grid boyutu kadar item olduğu için maliyeti küçük olurdu, ama oyun uzadıkça birikiyor. Pool'u elle yazmak; Unity'nin hazır pool'u yeterli |

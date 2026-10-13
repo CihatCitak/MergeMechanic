@@ -8,6 +8,8 @@ namespace Game.GridSystem
         [SerializeField] private GridConfig _gridConfig;
         [SerializeField] private GridCreator _creator;
 
+        public Vector2Int Size => _gridConfig.Size;
+
         public Rect Area
         {
             get

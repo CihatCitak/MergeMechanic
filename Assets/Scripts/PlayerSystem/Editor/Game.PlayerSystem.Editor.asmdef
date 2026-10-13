@@ -1,0 +1,12 @@
+{
+    "name": "Game.PlayerSystem.Editor",
+    "rootNamespace": "Game.PlayerSystem",
+    "references": [
+        "GUID:0e2a8ce72a144cb69ac8d7fae5236527",
+        "GUID:5cc4edb8a1dce20438b39fc89873c59b"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "autoReferenced": true
+}

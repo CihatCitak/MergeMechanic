@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e6911662d31e43945a8e04a056268f01, type: 3}
   m_Name: ItemChain_Cleaning
   m_EditorClassIdentifier: 
+  _id: cleaning
   _levels:
   - _sprite: {fileID: 21300000, guid: f3c30bdd2561fe64eb6f62780781539a, type: 3}
     _mergeScore: 0
