@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e6911662d31e43945a8e04a056268f01, type: 3}
   m_Name: ItemChain_Seafood
   m_EditorClassIdentifier: 
+  _id: seafood
   _levels:
   - _sprite: {fileID: 21300000, guid: 37ac4c2a6ee6a57448a52ee5af70507a, type: 3}
     _mergeScore: 0

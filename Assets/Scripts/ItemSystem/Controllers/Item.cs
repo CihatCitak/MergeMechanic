@@ -1,7 +1,9 @@
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
+using Game.Core.Events;
 using Game.Core.Services;
+using Game.Events;
 using Game.GridSystem;
 using Game.InputSystem;
 using UnityEngine;
@@ -39,6 +41,7 @@ namespace Game.ItemSystem
             ServiceLocator.Get<IGridObjectHolder>().Occupy(cell, this);
             Cell = cell;
             _collider.enabled = true;
+            EventBus.Fire(new ItemPlacedEvent());
         }
 
         public void Unplace()

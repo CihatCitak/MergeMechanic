@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e6911662d31e43945a8e04a056268f01, type: 3}
   m_Name: ItemChain_Bakery
   m_EditorClassIdentifier: 
+  _id: bakery
   _levels:
   - _sprite: {fileID: 21300000, guid: 9fb360a6790ad3449931669e6a807a7e, type: 3}
     _mergeScore: 0

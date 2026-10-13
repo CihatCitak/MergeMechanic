@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e6911662d31e43945a8e04a056268f01, type: 3}
   m_Name: ItemChain_Coffee
   m_EditorClassIdentifier: 
+  _id: coffee
   _levels:
   - _sprite: {fileID: 21300000, guid: e8261a977b474a34c8369acfe823edd7, type: 3}
     _mergeScore: 0
