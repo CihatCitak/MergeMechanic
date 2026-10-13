@@ -485,6 +485,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: GameplayHudView
       objectReference: {fileID: 0}
+    - target: {fileID: 6347766287477374577, guid: ceaa8f7c2578ce7458775269d16d8d34, type: 3}
+      propertyPath: _camera
+      value: 
+      objectReference: {fileID: 7009110279096381668}
     - target: {fileID: 8716536359258975100, guid: ceaa8f7c2578ce7458775269d16d8d34, type: 3}
       propertyPath: m_Pivot.x
       value: 0

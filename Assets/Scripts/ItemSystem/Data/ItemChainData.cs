@@ -9,5 +9,7 @@ namespace Game.ItemSystem
         [SerializeField] private ItemLevel[] _levels;
 
         public IReadOnlyList<ItemLevel> Levels => _levels;
+
+        public ItemLevel GetLevel(int level) => _levels[level - 1];
     }
 }

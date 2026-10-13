@@ -36,9 +36,13 @@ namespace Game.ItemSystem
             SpawnAsync(chain, level, origin, cell).Forget();
         }
 
-        public void CreateMerged(ItemChainData chain, int level, Vector2Int cell)
+        public Item CreateMerged(ItemChainData chain, int level, Vector2Int cell)
         {
-            MergeAsync(chain, level, cell).Forget();
+            var item = CreateItem(chain, level, ServiceLocator.Get<IGrid>().CellToWorld(cell));
+            ServiceLocator.Get<IGridObjectHolder>().Reserve(cell);
+            item.Place(cell);
+            item.PlayMerge();
+            return item;
         }
 
         public void Recycle(Item item)
@@ -50,13 +54,6 @@ namespace Game.ItemSystem
         {
             var item = CreateItem(chain, level, origin);
             await item.PlaySpawnAsync(ServiceLocator.Get<IGrid>().CellToWorld(cell), item.destroyCancellationToken);
-            item.Place(cell);
-        }
-
-        private async UniTaskVoid MergeAsync(ItemChainData chain, int level, Vector2Int cell)
-        {
-            var item = CreateItem(chain, level, ServiceLocator.Get<IGrid>().CellToWorld(cell));
-            await item.PlayMergeAsync(item.destroyCancellationToken);
             item.Place(cell);
         }
 
